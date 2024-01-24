@@ -3,23 +3,21 @@ package com.github.domain;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.helpers.Response;
-import org.json.JSONObject;
+import com.github.helpers.ResponseView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Tag("unit-testing")
-class ResponseDomainTest {
+class ResponseViewDomainTest {
 	ObjectMapper mapper;
 
 	@BeforeEach
@@ -56,7 +54,7 @@ class ResponseDomainTest {
 	}
 
 	@Test
-	void JsonStringShouldCanDeserializeByGroupToPoJo(){
+	void JsonStringShouldCanDeserializeByGroupToPoJo() {
 		String jsonFormat = "{\"status\":\"OK\",\"status_code\":200,\"data\":{}}";
 
 		ResponseDomain domain = ResponseDomain.builder()
@@ -65,7 +63,7 @@ class ResponseDomainTest {
 			.data(new HashMap<>()).build();
 
 		assertDoesNotThrow(() -> {
-			ResponseDomain domainAfterDeserialize = mapper.readerWithView(Response.Success.class).readValue(jsonFormat, ResponseDomain.class);
+			ResponseDomain domainAfterDeserialize = mapper.readerWithView(ResponseView.Success.class).readValue(jsonFormat, ResponseDomain.class);
 			assertEquals(domain, domainAfterDeserialize);
 		});
 		String jsonFailSample = "{\"status\":\"OK\",\"status_code\":200,\"message\":{}}";
@@ -76,7 +74,7 @@ class ResponseDomainTest {
 			.message(new HashMap<>()).build();
 
 		assertDoesNotThrow(() -> {
-			ResponseDomain domainAfterDeserialize = mapper.readerWithView(Response.Fail.class).readValue(jsonFailSample, ResponseDomain.class);
+			ResponseDomain domainAfterDeserialize = mapper.readerWithView(ResponseView.Fail.class).readValue(jsonFailSample, ResponseDomain.class);
 			assertEquals(domain2, domainAfterDeserialize);
 		});
 	}

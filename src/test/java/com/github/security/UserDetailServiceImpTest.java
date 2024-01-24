@@ -9,10 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +28,6 @@ class UserDetailServiceImpTest {
 	void setUp() throws IOException {
 		Files.createFile(tempDir.resolve(path));
 		encoder = new BCryptPasswordEncoder();
-		Files.writeString(tempDir.resolve(path), "id name password", StandardOpenOption.WRITE);
 		userDetailServiceImp = new UserDetailServiceImp(encoder, tempDir.resolve(path));
 	}
 

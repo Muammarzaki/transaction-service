@@ -54,9 +54,9 @@ class BaseControllerTest {
 
 	@Test
 	void secretEndpointShouldCantAccessed() {
-		assertDoesNotThrow(()->{
+		assertDoesNotThrow(() -> {
 			mock.perform(
-				get("/secret").with(httpBasic("joko","jost"))
+				get("/secret").with(httpBasic("joko", "jost"))
 			).andExpect(status().isUnauthorized());
 		});
 	}

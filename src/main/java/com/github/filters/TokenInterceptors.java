@@ -1,4 +1,3 @@
-/*
 package com.github.filters;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,4 +45,3 @@ public class TokenInterceptors implements HandlerInterceptor {
 		return true;
 	}
 }
-*/
