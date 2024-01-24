@@ -1,0 +1,7 @@
+security:
+  salt: 123
+user:
+  path: classpath:users
+logging:
+  level:
+    root: DEBUG

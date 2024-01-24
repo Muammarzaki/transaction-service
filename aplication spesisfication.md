@@ -35,7 +35,7 @@ Response
         "price": 20000
       }
     ],
-    "costumer": {
+    "customer": {
       "user_id": "random",
       "username": "joni"
     }
@@ -88,7 +88,7 @@ Response
         "price": 20000
       }
     ],
-    "costumer": {
+    "customer": {
       "user_id": "random",
       "username": "joni"
     }
@@ -113,7 +113,7 @@ Request
       "price": 20000
     }
   ],
-  "costumer": {
+  "customer": {
     "user_id": "random",
     "username": "joni"
   }
@@ -144,7 +144,7 @@ Response
         "price": 20000
       }
     ],
-    "costumer": {
+    "customer": {
       "user_id": "random",
       "username": "joni"
     }
@@ -156,8 +156,8 @@ Response
 
 Request
 
-> REQ_TOKEN = base64(salt + username + salt)
+> TOKEN = base64(salt + username + salt)
 
 Response
 
-> RES_TOKEN = base64(salt + username + salt)
+> TOKEN = base64(salt + username + salt)
