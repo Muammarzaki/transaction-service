@@ -34,7 +34,7 @@ class BaseControllerTest {
 		final String expectResult = "home";
 		assertDoesNotThrow(() -> {
 			mock.perform(
-					get("/")
+					get("/").with(httpBasic("joko","jas"))
 				)
 				.andExpect(status().isOk())
 				.andExpect(content().string(containsString(expectResult)));

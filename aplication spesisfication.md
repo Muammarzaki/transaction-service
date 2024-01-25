@@ -2,13 +2,31 @@
 
 ## Endpoint
 
-- /transact
-    - /
-    - /check?id=id
-    - /cancel?id=id
-    - /list_all
+- /api
+    - /auth
+        - /register
+    - /transact
+        - /
+        - /check?id=id
+        - /cancel?id=id
+        - /list_all
 
-## Response Body
+## Structure Request and Response body
+
+[POST] /auth/register
+
+Request
+
+```json
+{
+  "username": "user",
+  "password": "base64(password)"
+}
+```
+
+Response
+
+**Status Code Created**
 
 [GET] **/transact/check?id=id**
 

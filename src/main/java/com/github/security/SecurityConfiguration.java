@@ -8,6 +8,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,9 +25,11 @@ public class SecurityConfiguration {
 		return http
 			.authorizeHttpRequests(auth ->
 				auth
-					.requestMatchers("/").permitAll()
+					.requestMatchers("/auth/check").authenticated()
+					.requestMatchers("/auth/**").permitAll()
 					.anyRequest().authenticated()
 			)
+			.csrf(AbstractHttpConfigurer::disable)
 			.httpBasic(withDefaults())
 			.build();
 	}
