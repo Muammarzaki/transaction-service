@@ -49,7 +49,8 @@ class AuthenticationControllerTest {
 	@ContextConfiguration(classes = {
 		TransactionServiceApplication.class,
 		SecurityConfiguration.class,
-		SecurityTestConfig.class
+		Encoding.class,
+		UserDetailServiceImp.class
 	})
 	class RegisterServiceTest {
 		@Autowired
