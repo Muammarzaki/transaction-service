@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: transaction-service
+
+  datasource:
+    url: jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+  sql:
+    init:
+      mode: always
