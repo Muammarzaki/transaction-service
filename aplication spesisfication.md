@@ -184,37 +184,35 @@ Response
 
 **Table transact**
 
-+ id **Long**
-+ transact_id **String**
-+ payment_id **String**
-+ transact_status **String**
-+ mount **int**
-+ currency
-+ transact_on **time**
-+ transact_finish_on **time**
-+ transact_method **String**
-+ Items relation to table item
-+ Customers relation to table customer_info
+| entity            | type     | other    |
+|-------------------|----------|----------|
+| id                | Long     | primary  |
+| transact_id       | String   |          |
+| order_id          | String   |          |
+| mount             | int      |          |
+| currency          | Currency |          |
+| transact_on       | time     |          |
+| transact_finis_on | time     |          |
+| transact_method   | String   |          |
+| items             | items    | relation |
+| customer_info     | customer | relation |
 
 **Table item**
 
-+ id **Long**
-+ item_id **String**
-+ count **int**
-+ price **int**
+| entity  | type   | other   |
+|---------|--------|---------|
+| id      | Long   | primary |
+| item_id | String |         |
+| price   | int    |         |
+| count   | int    |         |
 
 **Table customer_info**
 
-+ id **Long**
-+ user_id **String**
-+ username **String**
-
-**Table account**
-
-+ id **Long**
-+ username **String**
-+ password **String BCrypt**
-+ role **AccountRole**
+| entity   | type   | other   |
+|----------|--------|---------|
+| id       | Long   | primary |
+| user_id  | String |         |
+| username | String |         |
 
 # third-party API
 
@@ -222,11 +220,11 @@ Response
 
 ### Docs
 
-Documentation : https://docs.midtrans.com/docs
-
-API References : https://docs.midtrans.com/reference
-
-SandBox Simulator : https://simulator.sandbox.midtrans.com
+|                   |                                        |
+|-------------------|----------------------------------------|
+| Documentation     | https://docs.midtrans.com/docs         |
+| API References    | https://docs.midtrans.com/reference    |
+| SandBox Simulator | https://simulator.sandbox.midtrans.com |
 
 ### Core API
 
@@ -636,7 +634,8 @@ curl -X POST \
 }
 ```
 
-and other is base on payment_type. somehow we need to share customer information and items, we can share it with attribute customer_details and items\
+and other is base on payment_type. somehow we need to share customer information and items, we can share it with
+attribute customer_details and items\
 
 ```json
 {
