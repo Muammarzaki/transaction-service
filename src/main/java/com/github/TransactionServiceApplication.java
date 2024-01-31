@@ -1,14 +1,8 @@
-package com.github.app;
+package com.github;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication(scanBasePackages = {
-	"com.github",
-	"com.github.security",
-	"com.github.app",
-	"com.github.controllers"
-})
+@SpringBootApplication
 public class TransactionServiceApplication {
 
 	public static void main(String[] args) {
