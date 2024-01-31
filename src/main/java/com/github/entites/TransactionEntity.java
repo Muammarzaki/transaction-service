@@ -1,21 +1,36 @@
 package com.github.entites;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
 
-@Entity(name = "transact")
-public record TransactionEntity(
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id,
-	String transact_id,
-	String order_id,
-	int mount,
-	String currency,
-	Instant transact_on,
-	Instant transact_finis_on,
-	String transact_method,
-	@OneToMany List<ItemEntity> items,
-	@ManyToOne CustomerInfoEntity customerInfo
-) {
+@Entity
+@NoArgsConstructor
+@Data
+@AllArgsConstructor
+@Builder
+@Table(name = "transact")
+public class TransactionEntity {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	@Column(unique = true)
+	private String transact_id;
+	@Column(unique = true)
+	private String order_id;
+	private int mount;
+	private String currency;
+	private Instant transact_on;
+	private Instant transact_finis_on;
+	private String transact_method;
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<ItemEntity> items;
+	@ManyToOne(cascade = CascadeType.ALL)
+	private CustomerInfoEntity customerInfo;
+
 }
