@@ -63,10 +63,10 @@ public class UserDetailServiceImp implements UserDetailsService {
 
 	private boolean isUserExits(String username) {
 		log.debug("Trying find user with name {}", username);
-		try{
+		try {
 			loadUserByUsername(username);
 			return true;
-		}catch (UsernameNotFoundException e){
+		} catch (UsernameNotFoundException e) {
 			return false;
 		}
 	}
@@ -86,10 +86,11 @@ public class UserDetailServiceImp implements UserDetailsService {
 			throw new RuntimeException(e);
 		}
 	}
-	public static class UserExitsException extends RuntimeException{
+
+	public static class UserExitsException extends RuntimeException {
 
 		public UserExitsException(String username) {
-			super(String.format("User with name %s exits",username));
+			super(String.format("User with name %s exits", username));
 		}
 
 		public UserExitsException(String message, Throwable cause) {

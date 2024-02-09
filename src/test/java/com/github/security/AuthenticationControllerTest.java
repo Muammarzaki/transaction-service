@@ -21,7 +21,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -79,7 +80,7 @@ class AuthenticationControllerTest {
 						.content(dataRequest)
 				).andExpect(status().isAccepted());
 			});
-			verify(userDetailServiceImp,times(1)).registerUser(anyString(),anyString());
+			verify(userDetailServiceImp, times(1)).registerUser(anyString(), anyString());
 		}
 
 	}

@@ -4,8 +4,9 @@ import com.github.domain.TransactionDomain;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
-public class MidtransTransactionImpl implements TransactionService{
+public class MidtransTransactionImpl implements TransactionService {
 
 	@Override
 	public void createTransaction(TransactionDomain.Response dataCreate) {

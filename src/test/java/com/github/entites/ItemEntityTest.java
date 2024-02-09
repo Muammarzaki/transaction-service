@@ -16,12 +16,13 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 class ItemEntityTest {
 	@Autowired
 	TestEntityManager entityManager;
+
 	@Test
 	void shouldestSaveNewItem() {
 		ItemEntity dataItem = ItemEntity.builder().ItemId("1234")
 			.price(20000).count(100).build();
 
-		assertDoesNotThrow(()->{
+		assertDoesNotThrow(() -> {
 			ItemEntity savedItem = entityManager.persistAndFlush(dataItem);
 			assertThat(savedItem).extracting(ItemEntity::getId).isNotNull();
 		});

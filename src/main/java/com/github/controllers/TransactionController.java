@@ -12,31 +12,31 @@ public class TransactionController {
 
 	private final TransactionService transactServices;
 
-    public TransactionController(TransactionService transactServices) {
-        this.transactServices = transactServices;
-    }
+	public TransactionController(TransactionService transactServices) {
+		this.transactServices = transactServices;
+	}
 
-    @ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.OK)
 	public Object checkTransaction(int id) {
 
-        return null;
-    }
+		return null;
+	}
 
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public Object cancelTransaction(String id) {
 
-        return null;
-    }
+		return null;
+	}
 
 	@ResponseStatus(HttpStatus.OK)
 	public Object listAllTransaction() {
 
-        return null;
-    }
+		return null;
+	}
 
 	@ResponseStatus(HttpStatus.CREATED)
 	public Object createTransaction() {
 
-        return null;
-    }
+		return null;
+	}
 }
