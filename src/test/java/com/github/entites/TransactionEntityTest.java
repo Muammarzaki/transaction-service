@@ -35,10 +35,10 @@ class TransactionEntityTest {
 		TransactionEntity transactionData = TransactionEntity.builder()
 			.transact_id("2323")
 			.mount(20000)
-			.order_id("order-1")
+			.orderId("order-1")
 			.currency("IDR")
-			.transact_on(Instant.ofEpochMilli(1706617931617L))
-			.transact_method("cash")
+			.transactOn(Instant.ofEpochMilli(1706617931617L))
+			.transactMethod("cash")
 			.customerInfo(customerInfo)
 			.items(List.of(
 				item1
@@ -77,10 +77,10 @@ class TransactionEntityTest {
 		TransactionEntity transactionData = TransactionEntity.builder()
 			.transact_id("2121")
 			.mount(20000)
-			.order_id("order-1")
+			.orderId("order-1")
 			.currency("IDR")
-			.transact_on(Instant.ofEpochMilli(1706617931617L))
-			.transact_method("cash")
+			.transactOn(Instant.ofEpochMilli(1706617931617L))
+			.transactMethod("cash")
 			.customerInfo(customerInfo)
 			.items(List.of(
 				item1

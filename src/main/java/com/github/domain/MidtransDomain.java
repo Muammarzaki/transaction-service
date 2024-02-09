@@ -12,8 +12,6 @@ import java.util.List;
 
 public abstract class MidtransDomain {
 
-
-	@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "payment_type")
 	@JsonSubTypes({
@@ -64,7 +62,6 @@ public abstract class MidtransDomain {
 	public static class EWalletResponse extends TransactionResponse {
 		private List<Action> actions;
 
-		@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 		public record Action(
 			String name,
 			String method,
@@ -92,7 +89,6 @@ public abstract class MidtransDomain {
 
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 	public record TransactionDetails(
 		@NotNull(message = "must provide the value")
 		@PositiveOrZero(message = "gross amount should have 0 or greater")
@@ -103,7 +99,6 @@ public abstract class MidtransDomain {
 	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 	public record CustomerDetails(
 		@NotBlank(message = "cannot blank or null")
 		String name,
@@ -114,7 +109,6 @@ public abstract class MidtransDomain {
 	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 	public record Items(
 		@NotBlank(message = "cannot blank or null")
 		String itemId,
@@ -154,7 +148,6 @@ public abstract class MidtransDomain {
 	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 	public record Cstore(
 		@NotBlank(message = "cannot blank or null")
 		@Pattern(regexp = "indomaret|alfamart")

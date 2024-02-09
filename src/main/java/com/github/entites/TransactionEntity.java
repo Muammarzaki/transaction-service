@@ -22,12 +22,12 @@ public class TransactionEntity {
 	@Column(unique = true)
 	private String transact_id;
 	@Column(unique = true)
-	private String order_id;
+	private String orderId;
 	private int mount;
 	private String currency;
-	private Instant transact_on;
-	private Instant transact_finis_on;
-	private String transact_method;
+	private Instant transactOn;
+	private Instant transactFinis_on;
+	private String transactMethod;
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<ItemEntity> items;
 	@ManyToOne(cascade = CascadeType.ALL)

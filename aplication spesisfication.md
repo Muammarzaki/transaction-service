@@ -666,7 +666,6 @@ attribute customer_details and items\
   "gross_amount": "162500.00",
   "order_id": "order-101o-1578557780",
   "payment_type": "cstore",
-  "store": "alfamart",
   "transaction_id": "d615df87-c96f-4f5c-9d35-2d740d54c1a9",
   "transaction_status": "pending",
   "transaction_time": "2020-01-09 15:16:19"

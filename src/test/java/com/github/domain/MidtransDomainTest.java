@@ -3,6 +3,8 @@ package com.github.domain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.github.app.JacksonConfiguration;
+import com.github.app.JacksonConfigurationTest;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,7 @@ class MidtransDomainTest {
 
 	@BeforeEach
 	void setUp() {
-		mapper = new ObjectMapper();
+		mapper = JacksonConfigurationTest.getConfig();
 		cstoreResponse = """
 			{
 			  "status_code": "201",
