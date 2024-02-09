@@ -14,6 +14,7 @@ public class JacksonConfiguration {
 	public Jackson2ObjectMapperBuilderCustomizer JacksonCustomizer() {
 		return builder -> builder
 			.modules(new JavaTimeModule())
+			.serializationInclusion(JsonInclude.Include.NON_EMPTY)
 			.propertyNamingStrategy(new PropertyNamingStrategies.SnakeCaseStrategy())
 			.build();
 	}
