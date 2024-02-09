@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.app.JacksonConfigurationTest;
 import com.github.helpers.ResponseView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -22,7 +23,7 @@ class ResponseViewDomainTest {
 
 	@BeforeEach
 	void setUp() {
-		mapper = new ObjectMapper();
+		mapper = JacksonConfigurationTest.getConfig();
 		mapper.setDefaultPrettyPrinter(new DefaultPrettyPrinter());
 	}
 
