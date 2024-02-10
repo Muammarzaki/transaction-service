@@ -144,7 +144,6 @@ public abstract class MidtransDomain {
 		int price) {
 	}
 
-	@Getter
 	public enum PaymentMethod {
 		CREDIT_CARD("credit_card", Collections.emptyList()),
 		CSTORE("cstore", List.of("alfamart", "indomaret")),
@@ -160,7 +159,7 @@ public abstract class MidtransDomain {
 		}
 
 		@JsonValue
-		private String type() {
+		private String getType() {
 			return type;
 		}
 
@@ -172,6 +171,15 @@ public abstract class MidtransDomain {
 				}
 			}
 			throw new IllegalArgumentException(String.format("Unknown PaymentMethod type: %s", type));
+		}
+
+		public static PaymentMethod fromSubType(String subType) {
+			for (PaymentMethod method : PaymentMethod.values()) {
+				if (method.subType.contains(subType)) {
+					return method;
+				}
+			}
+			throw new IllegalArgumentException(String.format("Unknown PaymentMethod sub-type: %s", subType));
 		}
 	}
 
@@ -186,5 +194,9 @@ public abstract class MidtransDomain {
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record BankTransfer(String bank) {
+	}
+
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record CreditCard(String tokenId, boolean authentication) {
 	}
 }
