@@ -183,4 +183,8 @@ public abstract class MidtransDomain {
 		String message
 	) {
 	}
+
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public record BankTransfer(String bank) {
+	}
 }
