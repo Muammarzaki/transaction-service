@@ -28,6 +28,7 @@ public abstract class MidtransDomain {
 			anyProperties.put(key, value);
 		}
 
+		@JsonAnyGetter
 		public Map<String, Object> getAny() {
 			return anyProperties;
 		}
@@ -158,6 +159,12 @@ public abstract class MidtransDomain {
 			this.subType = subType;
 		}
 
+		@JsonValue
+		private String type() {
+			return type;
+		}
+
+		@JsonCreator
 		public static PaymentMethod of(String type) {
 			for (PaymentMethod method : PaymentMethod.values()) {
 				if (method.type.equalsIgnoreCase(type)) {
