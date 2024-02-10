@@ -9,8 +9,29 @@ import lombok.*;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
+import java.util.Map;
 
 public abstract class MidtransDomain {
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class TransactionRequest {
+		private String paymentType;
+		private TransactionDetails transactionDetails;
+		private CustomerDetails customerDetails;
+		private TransactionDomain.ItemsDomain items;
+		private Map<String, Object> anyProperties;
+
+		@JsonAnySetter
+		public void addAny(String key, Object value) {
+			anyProperties.put(key, value);
+		}
+
+		public Map<String, Object> getAny() {
+			return anyProperties;
+		}
+	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "payment_type")
