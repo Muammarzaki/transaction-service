@@ -17,10 +17,12 @@ public abstract class MidtransDomain {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class TransactionRequest {
-		private String paymentType;
+		private PaymentMethod paymentType;
 		private TransactionDetails transactionDetails;
 		private CustomerDetails customerDetails;
 		private TransactionDomain.ItemsDomain items;
+
+		@JsonIgnore
 		private Map<String, Object> anyProperties;
 
 		@JsonAnySetter
@@ -112,11 +114,11 @@ public abstract class MidtransDomain {
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record TransactionDetails(
+		@NotBlank(message = "cannot blank or null")
+		String orderId,
 		@NotNull(message = "must provide the value")
 		@PositiveOrZero(message = "gross amount should have 0 or greater")
-		int grossAmount,
-		@NotBlank(message = "cannot blank or null")
-		String orderId
+		int grossAmount
 	) {
 	}
 
@@ -147,14 +149,18 @@ public abstract class MidtransDomain {
 	public enum PaymentMethod {
 		CREDIT_CARD("credit_card", Collections.emptyList()),
 		CSTORE("cstore", List.of("alfamart", "indomaret")),
-		QRIS("qris", List.of("gopay", "qris")),
-		BANK_TRANSFER("bank_transfer", List.of("bni"));
+		QRIS("qris", Collections.emptyList()),
+		BANK_TRANSFER("bank_transfer", List.of("bca", "bni", "bni", "bri", "cimb"));
 
 		private final String type;
 		private final List<String> subType;
 
-		PaymentMethod(String creditCard, List<String> subType) {
-			type = creditCard;
+		PaymentMethod(String type, List<String> subType) {
+			this.type = type;
+			if (subType.isEmpty()) {
+				this.subType = List.of(type);
+				return;
+			}
 			this.subType = subType;
 		}
 

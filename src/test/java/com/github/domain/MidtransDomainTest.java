@@ -6,6 +6,8 @@ import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -13,6 +15,9 @@ class MidtransDomainTest {
 	String cstoreResponse;
 	String bankResponse;
 	String eWalletResponse;
+	MidtransDomain.TransactionRequest cStoreRequest;
+	MidtransDomain.TransactionRequest bankRequest;
+	MidtransDomain.TransactionRequest eWalletRequest;
 
 	ObjectMapper mapper;
 
@@ -59,7 +64,7 @@ class MidtransDomainTest {
 			{
 			  "status_code": "201",
 			  "status_message": "GO-PAY transaction is created",
-			  "transaction_id": "231c79c5-e39e-4993-86da-cadcaee56c1d",
+			  "transaction_id": "231c79c5-e39e-4993-86da-cascade56c1d",
 			  "order_id": "order-101h-1570513296",
 			  "gross_amount": "44000.00",
 			  "currency": "IDR",
@@ -90,6 +95,16 @@ class MidtransDomainTest {
 			    }
 			  ]
 			}""";
+
+		MidtransDomain.TransactionDetails transactionDetails = new MidtransDomain.TransactionDetails("order-101", 44000);
+
+		MidtransDomain.TransactionRequest.TransactionRequestBuilder transactionRequestBuilder = MidtransDomain.TransactionRequest.builder()
+			.paymentType(MidtransDomain.PaymentMethod.QRIS)
+			.transactionDetails(transactionDetails);
+
+		eWalletRequest = transactionRequestBuilder.build();
+		bankRequest = transactionRequestBuilder.build();
+		cStoreRequest = transactionRequestBuilder.build();
 	}
 
 	@Test
@@ -125,5 +140,38 @@ class MidtransDomainTest {
 		});
 	}
 
+	@Test
+	void shouldMapperToCStoreTransactionRequestDomain() {
+		cStoreRequest.setAnyProperties(Map.of("cstore", new MidtransDomain.Cstore("alfamart", "test")));
+		assertDoesNotThrow(() -> {
+			String requestBody = mapper.writeValueAsString(cStoreRequest);
+			assertThat(requestBody)
+				.contains("cstore", "alfamart", "message");
+			System.out.print(requestBody);
+		});
+	}
 
+	@Test
+	void shouldMapperToBankTransferTransactionRequestDomain() {
+		bankRequest.setAnyProperties(Map.of("bank_transfer", new MidtransDomain.BankTransfer("bca")));
+		assertDoesNotThrow(() -> {
+			String requestBody = mapper.writeValueAsString(bankRequest);
+			assertThat(requestBody)
+				.contains("bank_transfer", "bank", "bca");
+			System.out.print(requestBody);
+		});
+	}
+
+	@Test
+	void shouldMapperToEWalletTransactionRequestDomain() {
+		assertDoesNotThrow(() -> {
+			String requestBody = mapper.writeValueAsString(eWalletRequest);
+			assertThat(requestBody)
+				.contains("qris", "transaction_details", "order-101");
+			System.out.print(requestBody);
+
+			MidtransDomain.TransactionRequest transactionRequest = mapper.readValue(requestBody, MidtransDomain.TransactionRequest.class);
+			assertThat(transactionRequest).isEqualTo(eWalletRequest);
+		});
+	}
 }
