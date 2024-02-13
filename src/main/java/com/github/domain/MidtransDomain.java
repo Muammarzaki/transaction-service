@@ -165,7 +165,7 @@ public abstract class MidtransDomain {
 		}
 
 		@JsonValue
-		private String getType() {
+		public String getType() {
 			return type;
 		}
 
