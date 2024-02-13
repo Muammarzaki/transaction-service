@@ -44,25 +44,28 @@ public abstract class MidtransDomain {
 		@JsonSubTypes.Type(value = EWalletResponse.class, name = "gopay"),
 		@JsonSubTypes.Type(value = BankTransferResponse.class, name = "bank_transfer")
 	})
+	@Getter
+	@Setter
 	public static class TransactionResponse {
 		@NotNull(message = "must provide the value")
 		@PositiveOrZero(message = "gross amount should have 0 or greater")
-		int grossAmount;
+		private int grossAmount;
 		@NotBlank(message = "cannot blank or null")
-		String orderId;
+		private String orderId;
 		@NotBlank(message = "cannot blank or null")
-		Currency Currency;
+		private Currency Currency;
 		@NotBlank(message = "cannot blank or null")
 		@JsonProperty("payment_type")
-		String paymentType;
+		private String paymentType;
 		@NotBlank(message = "cannot blank or null")
-		String transactionId;
+		@NotEmpty(message = "cannot empty")
+		private String transactionId;
 		@NotBlank(message = "cannot blank or null")
-		String transactionStatus;
+		private String transactionStatus;
 		@NotBlank(message = "cannot blank or null")
-		String transactionTime;
+		private String transactionTime;
 		@NotBlank(message = "cannot blank or null")
-		String fraudStatus;
+		private String fraudStatus;
 
 	}
 
