@@ -38,7 +38,7 @@ Response
   "status": "http.ok",
   "data": {
     "transact_id": "id",
-    "payment_id": "id_payment",
+    "order_id": "id_payment",
     "transact_status": "done|pending|fail|cancel",
     "mount": 40000,
     "currency": "IDR",
@@ -91,7 +91,7 @@ Response
   "status": "http.ok",
   "data": {
     "transact_id": "id",
-    "payment_id": "id_payment",
+    "order_id": "id_payment",
     "transact_status": "done|pending|fail|cancel",
     "mount": 40000,
     "currency": "IDR",
@@ -147,7 +147,7 @@ Response
   "status": "http.ok",
   "data": {
     "transact_id": "id",
-    "payment_id": "id_payment",
+    "order_id": "id_payment",
     "transact_status": "done|pending|fail|cancel",
     "mount": 40000,
     "currency": "IDR",
