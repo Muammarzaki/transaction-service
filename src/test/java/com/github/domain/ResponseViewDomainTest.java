@@ -1,6 +1,7 @@
 package com.github.domain;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -23,7 +24,7 @@ class ResponseViewDomainTest {
 
 	@BeforeEach
 	void setUp() {
-		mapper = JacksonConfigurationTest.getConfig();
+		mapper = JacksonConfigurationTest.getConfig().setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
 		mapper.setDefaultPrettyPrinter(new DefaultPrettyPrinter());
 	}
 

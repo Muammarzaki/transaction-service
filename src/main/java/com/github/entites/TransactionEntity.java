@@ -22,7 +22,7 @@ public class TransactionEntity {
 	@Column(nullable = false)
 	private String transactId;
 	@Column(nullable = false)
-	private int mount;
+	private double mount;
 	@Column(nullable = false)
 	private String currency;
 	@Column(nullable = false)

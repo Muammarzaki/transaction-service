@@ -42,11 +42,11 @@ class TransactionDomainTest {
 		Currency currency = Currency.getInstance("IDR");
 		float mount = 60000;
 		String method = "gopay";
-		TransactionDomain.Response domain = TransactionDomain.Response.builder().transactId(transactID).paymentId(paymentID).transactOn(now).transactFinishOn(transactFinishOn).transactStatus(transactStatus).items(new TransactionDomain.ItemsDomain()).customer(new TransactionDomain.CustomerDomain(null, null)).transactMethod(method).mount(mount).currency(currency).build();
+		TransactionDomain.Response domain = TransactionDomain.Response.builder().transactId(transactID).orderId(paymentID).transactOn(now).transactFinishOn(transactFinishOn).transactStatus(transactStatus).items(new TransactionDomain.ItemsDomain()).customer(new TransactionDomain.CustomerDomain(null, null)).transactMethod(method).mount(mount).currency(currency).build();
 		String jsonFormat = """
 			{
 			    "transact_id": "%s",
-			    "payment_id": "%s",
+			    "order_id": "%s",
 			    "transact_status": "%s",
 			    "mount": %f,
 			    "currency": "%s",

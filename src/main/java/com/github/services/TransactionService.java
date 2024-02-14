@@ -7,9 +7,9 @@ import java.util.List;
 public interface TransactionService {
 	public void createTransaction(TransactionDomain.CreateTransact dataCreate);
 
-	public void removeTransaction(String transactId);
+	public void cancelTransaction(String transactId);
 
-	public List<TransactionDomain> getAllTransaction();
+	public List<TransactionDomain.Response> getAllTransaction();
 
-	public TransactionDomain checkTransaction(String transactId);
+	public TransactionDomain.Response checkTransaction(String transactId);
 }

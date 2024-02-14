@@ -49,7 +49,7 @@ public abstract class MidtransDomain {
 	public static class TransactionResponse {
 		@NotNull(message = "must provide the value")
 		@PositiveOrZero(message = "gross amount should have 0 or greater")
-		private int grossAmount;
+		private double grossAmount;
 		@NotBlank(message = "cannot blank or null")
 		private String orderId;
 		@NotBlank(message = "cannot blank or null")
@@ -121,7 +121,8 @@ public abstract class MidtransDomain {
 		String orderId,
 		@NotNull(message = "must provide the value")
 		@PositiveOrZero(message = "gross amount should have 0 or greater")
-		int grossAmount
+		@JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "0.00")
+		double grossAmount
 	) {
 	}
 
@@ -141,12 +142,10 @@ public abstract class MidtransDomain {
 		String itemId,
 		@NotBlank(message = "cannot blank or null")
 		String itemName,
-		@Min(value = 1, message = "Minimum values is one")
-		@Positive(message = "must positive value")
+		@Positive(message = "must be positive value and not zero")
 		int count,
-		@Min(value = 1, message = "Minimum values is one")
-		@Positive(message = "must positive value")
-		int price) {
+		@Positive(message = "must be positive value and not zero")
+		double price) {
 	}
 
 	public enum PaymentMethod {
