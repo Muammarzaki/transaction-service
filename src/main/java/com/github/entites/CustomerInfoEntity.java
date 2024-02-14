@@ -1,6 +1,9 @@
 package com.github.entites;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,11 +17,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "customer_info")
 public class CustomerInfoEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	Long id;
-	@Column(unique = true, nullable = false, updatable = false)
 	String userId;
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	String username;
 
 }

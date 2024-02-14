@@ -29,11 +29,12 @@ class TransactionEntityTest {
 			.username("joko")
 			.build();
 		ItemEntity item1 = ItemEntity.builder().ItemId("3242")
+			.itemName("foobar")
 			.price(10000)
 			.count(2)
 			.build();
 		TransactionEntity transactionData = TransactionEntity.builder()
-			.transact_id("2323")
+			.transactId("2323")
 			.mount(20000)
 			.orderId("order-1")
 			.currency("IDR")
@@ -54,8 +55,8 @@ class TransactionEntityTest {
 			assertThat(entityManager.getEntityManager().contains(item1)).isTrue();
 
 			TransactionEntity savedTransaction = entityManager.persistAndFlush(transactionData);
-			assertThat(savedTransaction).extracting(TransactionEntity::getCustomerInfo).extracting(CustomerInfoEntity::getId)
-				.isNotNull().isEqualTo(transactionData.getId());
+			assertThat(savedTransaction).extracting(TransactionEntity::getCustomerInfo).extracting(CustomerInfoEntity::getUserId)
+				.isNotNull().isEqualTo(transactionData.getCustomerInfo().getUserId());
 
 			assertThat(savedTransaction).extracting(TransactionEntity::getItems).asList().hasSize(1).containsOnly(item1);
 
@@ -73,9 +74,10 @@ class TransactionEntityTest {
 		ItemEntity item1 = ItemEntity.builder().ItemId("3242")
 			.price(10000)
 			.count(2)
+			.itemName("fakerboom")
 			.build();
 		TransactionEntity transactionData = TransactionEntity.builder()
-			.transact_id("2121")
+			.transactId("2121")
 			.mount(20000)
 			.orderId("order-1")
 			.currency("IDR")
@@ -90,8 +92,8 @@ class TransactionEntityTest {
 
 		assertDoesNotThrow(() -> {
 			TransactionEntity savedTransaction = entityManager.persistAndFlush(transactionData);
-			assertThat(savedTransaction).extracting(TransactionEntity::getCustomerInfo).extracting(CustomerInfoEntity::getId)
-				.isNotNull().isEqualTo(transactionData.getId());
+			assertThat(savedTransaction).extracting(TransactionEntity::getCustomerInfo).extracting(CustomerInfoEntity::getUserId)
+				.isNotNull().isEqualTo(transactionData.getCustomerInfo().getUserId());
 
 			assertThat(savedTransaction).extracting(TransactionEntity::getItems).asList().hasSize(1).containsOnly(item1);
 		});

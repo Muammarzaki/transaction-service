@@ -31,7 +31,7 @@ class CustomerInfoEntityTest {
 
 		CustomerInfoEntity withNewId = entityManager.persistFlushFind(customerInfo);
 
-		assertThat(withNewId).extracting(CustomerInfoEntity::getId).isNotNull();
+		assertThat(withNewId).extracting(CustomerInfoEntity::getUserId).isNotNull();
 	}
 
 	@Test

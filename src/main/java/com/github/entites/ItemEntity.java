@@ -1,6 +1,9 @@
 package com.github.entites;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,9 +17,12 @@ import lombok.NoArgsConstructor;
 @Table(name = "item")
 public class ItemEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	@Column(nullable = false)
 	private String ItemId;
-	private int count;
+	@Column(nullable = false)
+	private String itemName;
+	@Column(nullable = false)
 	private int price;
+	@Column(nullable = false)
+	private int count;
 }

@@ -19,12 +19,12 @@ class ItemEntityTest {
 
 	@Test
 	void shouldestSaveNewItem() {
-		ItemEntity dataItem = ItemEntity.builder().ItemId("1234")
+		ItemEntity dataItem = ItemEntity.builder().ItemId("1234").itemName("chocolate")
 			.price(20000).count(100).build();
 
 		assertDoesNotThrow(() -> {
 			ItemEntity savedItem = entityManager.persistAndFlush(dataItem);
-			assertThat(savedItem).extracting(ItemEntity::getId).isNotNull();
+			assertThat(savedItem).extracting(ItemEntity::getItemId).isNotNull();
 		});
 	}
 }

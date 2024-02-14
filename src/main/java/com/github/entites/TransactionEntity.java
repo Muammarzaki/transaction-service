@@ -17,17 +17,19 @@ import java.util.List;
 @Table(name = "transact")
 public class TransactionEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	@Column(unique = true)
-	private String transact_id;
-	@Column(unique = true)
+	@Column(nullable = false)
 	private String orderId;
+	@Column(nullable = false)
+	private String transactId;
+	@Column(nullable = false)
 	private int mount;
+	@Column(nullable = false)
 	private String currency;
+	@Column(nullable = false)
 	private Instant transactOn;
-	private Instant transactFinis_on;
+	private Instant transactFinishOn;
 	private String transactMethod;
+	private String transactStatus;
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<ItemEntity> items;
 	@ManyToOne(cascade = CascadeType.ALL)
