@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.util.Collections;
-import java.util.Currency;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class MidtransDomain {
 	@Data
@@ -27,6 +24,8 @@ public abstract class MidtransDomain {
 
 		@JsonAnySetter
 		public void addAny(String key, Object value) {
+			if (anyProperties == null)
+				anyProperties = new HashMap<>();
 			anyProperties.put(key, value);
 		}
 
