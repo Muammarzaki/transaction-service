@@ -2,8 +2,11 @@ package com.github.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.app.JacksonConfigurationTest;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -11,6 +14,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+@Tag("unit-testing")
 class MidtransDomainTest {
 	String cstoreResponse;
 	String bankResponse;
@@ -20,9 +24,11 @@ class MidtransDomainTest {
 	MidtransDomain.TransactionRequest eWalletRequest;
 
 	ObjectMapper mapper;
+	private Validator validator;
 
 	@BeforeEach
 	void setUp() {
+		validator = Validation.buildDefaultValidatorFactory().getValidator();
 		mapper = JacksonConfigurationTest.getConfig();
 		cstoreResponse = """
 			{
@@ -111,6 +117,7 @@ class MidtransDomainTest {
 	void shouldMapperToCStoreDomain() {
 		assertDoesNotThrow(() -> {
 			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(cstoreResponse, MidtransDomain.TransactionResponse.class);
+			assertThat(validator.validate(transactionResponse)).isEmpty();
 			assertThat(transactionResponse).isInstanceOf(MidtransDomain.CStoreResponse.class)
 				.extracting("paymentCode").isNotNull();
 		});
@@ -120,6 +127,7 @@ class MidtransDomainTest {
 	void shouldMapperToBankTransferDomain() {
 		assertDoesNotThrow(() -> {
 			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(bankResponse, MidtransDomain.TransactionResponse.class);
+			assertThat(validator.validate(transactionResponse)).isEmpty();
 			assertThat(transactionResponse).isInstanceOf(MidtransDomain.BankTransferResponse.class)
 				.asInstanceOf(InstanceOfAssertFactories.type(MidtransDomain.BankTransferResponse.class))
 				.extracting(MidtransDomain.BankTransferResponse::getVaNumbers).isNotNull()
@@ -132,6 +140,7 @@ class MidtransDomainTest {
 	void shouldMapperToEWalletDomain() {
 		assertDoesNotThrow(() -> {
 			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(eWalletResponse, MidtransDomain.TransactionResponse.class);
+			assertThat(validator.validate(transactionResponse)).isEmpty();
 			assertThat(transactionResponse).isInstanceOf(MidtransDomain.EWalletResponse.class)
 				.asInstanceOf(InstanceOfAssertFactories.type(MidtransDomain.EWalletResponse.class))
 				.extracting(MidtransDomain.EWalletResponse::getActions)
@@ -171,6 +180,7 @@ class MidtransDomainTest {
 			System.out.print(requestBody);
 
 			MidtransDomain.TransactionRequest transactionRequest = mapper.readValue(requestBody, MidtransDomain.TransactionRequest.class);
+			assertThat(validator.validate(transactionRequest)).isEmpty();
 			assertThat(transactionRequest).isEqualTo(eWalletRequest);
 		});
 	}

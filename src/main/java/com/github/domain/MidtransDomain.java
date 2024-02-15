@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public abstract class MidtransDomain {
@@ -36,33 +37,36 @@ public abstract class MidtransDomain {
 	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "payment_type")
+	@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "payment_type", visible = true)
 	@JsonSubTypes({
 		@JsonSubTypes.Type(value = CStoreResponse.class, name = "cstore"),
 		@JsonSubTypes.Type(value = EWalletResponse.class, name = "qris"),
 		@JsonSubTypes.Type(value = EWalletResponse.class, name = "gopay"),
 		@JsonSubTypes.Type(value = BankTransferResponse.class, name = "bank_transfer")
 	})
-	@Getter
-	@Setter
-	public static class TransactionResponse {
+	@Data
+	public static abstract class TransactionResponse {
 		@NotNull(message = "must provide the value")
 		@PositiveOrZero(message = "gross amount should have 0 or greater")
 		private double grossAmount;
 		@NotBlank(message = "cannot blank or null")
+		@JsonProperty(required = true)
 		private String orderId;
-		@NotBlank(message = "cannot blank or null")
-		private Currency Currency;
-		@NotBlank(message = "cannot blank or null")
-		@JsonProperty("payment_type")
-		private String paymentType;
+		@NotNull(message = "cannot blank or null")
+		private Currency currency;
+		@NotNull(message = "cannot blank or null")
+		@JsonProperty(required = true)
+		private PaymentMethod paymentType;
 		@NotBlank(message = "cannot blank or null")
 		@NotEmpty(message = "cannot empty")
+		@JsonProperty(required = true)
 		private String transactionId;
 		@NotBlank(message = "cannot blank or null")
 		private String transactionStatus;
-		@NotBlank(message = "cannot blank or null")
-		private String transactionTime;
+		@NotNull(message = "cannot blank or null")
+		@PastOrPresent(message = "must past or present value")
+		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+		private LocalDateTime transactionTime;
 		@NotBlank(message = "cannot blank or null")
 		private String fraudStatus;
 
@@ -89,9 +93,9 @@ public abstract class MidtransDomain {
 		private List<Action> actions;
 
 		public record Action(
-			String name,
-			String method,
-			String url
+			@NotEmpty(message = "cannot empty") String name,
+			@NotEmpty(message = "cannot empty") String method,
+			@NotEmpty(message = "cannot empty") String url
 		) {
 		}
 	}
@@ -107,8 +111,8 @@ public abstract class MidtransDomain {
 
 		@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 		public record VaNumber(
-			String bank,
-			String vaNumber
+			@NotEmpty(message = "cannot empty") String bank,
+			@NotEmpty(message = "cannot empty") String vaNumber
 		) {
 		}
 	}
@@ -200,10 +204,10 @@ public abstract class MidtransDomain {
 	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	public record BankTransfer(String bank) {
+	public record BankTransfer(@NotEmpty(message = "cannot empty") String bank) {
 	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	public record CreditCard(String tokenId, boolean authentication) {
+	public record CreditCard(@NotEmpty(message = "cannot empty") String tokenId, boolean authentication) {
 	}
 }
