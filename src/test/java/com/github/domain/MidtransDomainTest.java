@@ -13,12 +13,10 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("unit-testing")
 class MidtransDomainTest {
-	String cstoreResponse;
-	String bankResponse;
-	String eWalletResponse;
 	MidtransDomain.TransactionRequest cStoreRequest;
 	MidtransDomain.TransactionRequest bankRequest;
 	MidtransDomain.TransactionRequest eWalletRequest;
@@ -30,7 +28,21 @@ class MidtransDomainTest {
 	void setUp() {
 		validator = Validation.buildDefaultValidatorFactory().getValidator();
 		mapper = JacksonConfigurationTest.getConfig();
-		cstoreResponse = """
+
+		MidtransDomain.TransactionDetails transactionDetails = new MidtransDomain.TransactionDetails("order-101", 44000);
+
+		MidtransDomain.TransactionRequest.TransactionRequestBuilder transactionRequestBuilder = MidtransDomain.TransactionRequest.builder()
+			.paymentType(MidtransDomain.PaymentMethod.QRIS)
+			.transactionDetails(transactionDetails);
+
+		eWalletRequest = transactionRequestBuilder.build();
+		bankRequest = transactionRequestBuilder.build();
+		cStoreRequest = transactionRequestBuilder.build();
+	}
+
+	@Test
+	void shouldMapperToCStoreDomain() {
+		String cstoreResponse = """
 			{
 			  "status_code": "201",
 			  "status_message": "Success, cstore transaction is successful",
@@ -46,7 +58,41 @@ class MidtransDomainTest {
 			  "payment_code": "8127740588870520",
 			  "store": "alfamart"
 			}""";
-		bankResponse = """
+		assertDoesNotThrow(() -> {
+			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(cstoreResponse, MidtransDomain.TransactionResponse.class);
+			assertThat(validator.validate(transactionResponse)).isEmpty();
+			assertThat(transactionResponse).isInstanceOf(MidtransDomain.CStoreResponse.class)
+				.extracting("paymentCode", "statusCode").contains("8127740588870520", 201);
+		});
+	}
+
+	@Test
+	void shouldNotMapperToCStoreDomainCauseGrossAmountIsNotValid() {
+		String cstoreResponse = """
+			{
+			  "status_code": "201",
+			  "status_message": "Success, cstore transaction is successful",
+			  "transaction_id": "d615df87-c96f-4f5c-9d35-2d740d54c1a9",
+			  "order_id": "order-101o-1578557780",
+			  "merchant_id": "G812785002",
+			  "gross_amount": "-1.0",
+			  "currency": "IDR",
+			  "payment_type": "cstore",
+			  "transaction_time": "2020-01-09 15:16:19",
+			  "transaction_status": "pending",
+			  "fraud_status": "accept",
+			  "payment_code": "8127740588870520",
+			  "store": "alfamart"
+			}""";
+		assertDoesNotThrow(() -> {
+			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(cstoreResponse, MidtransDomain.TransactionResponse.class);
+			assertThat(validator.validate(transactionResponse)).isNotEmpty();
+		});
+	}
+
+	@Test
+	void shouldMapperToBankTransferDomain() {
+		String bankResponse = """
 			{
 			  "status_code": "201",
 			  "status_message": "Success, Bank Transfer transaction is created",
@@ -66,7 +112,20 @@ class MidtransDomainTest {
 			  ],
 			  "fraud_status": "accept"
 			}""";
-		eWalletResponse = """
+		assertDoesNotThrow(() -> {
+			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(bankResponse, MidtransDomain.TransactionResponse.class);
+			assertThat(validator.validate(transactionResponse)).isEmpty();
+			assertThat(transactionResponse).isInstanceOf(MidtransDomain.BankTransferResponse.class)
+				.asInstanceOf(InstanceOfAssertFactories.type(MidtransDomain.BankTransferResponse.class))
+				.extracting(MidtransDomain.BankTransferResponse::getVaNumbers).isNotNull()
+				.asInstanceOf(InstanceOfAssertFactories.list(MidtransDomain.EWalletResponse.Action.class))
+				.hasSize(1);
+		});
+	}
+
+	@Test
+	void shouldMapperToEWalletDomain() {
+		String eWalletResponse = """
 			{
 			  "status_code": "201",
 			  "status_message": "GO-PAY transaction is created",
@@ -102,42 +161,6 @@ class MidtransDomainTest {
 			  ]
 			}""";
 
-		MidtransDomain.TransactionDetails transactionDetails = new MidtransDomain.TransactionDetails("order-101", 44000);
-
-		MidtransDomain.TransactionRequest.TransactionRequestBuilder transactionRequestBuilder = MidtransDomain.TransactionRequest.builder()
-			.paymentType(MidtransDomain.PaymentMethod.QRIS)
-			.transactionDetails(transactionDetails);
-
-		eWalletRequest = transactionRequestBuilder.build();
-		bankRequest = transactionRequestBuilder.build();
-		cStoreRequest = transactionRequestBuilder.build();
-	}
-
-	@Test
-	void shouldMapperToCStoreDomain() {
-		assertDoesNotThrow(() -> {
-			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(cstoreResponse, MidtransDomain.TransactionResponse.class);
-			assertThat(validator.validate(transactionResponse)).isEmpty();
-			assertThat(transactionResponse).isInstanceOf(MidtransDomain.CStoreResponse.class)
-				.extracting("paymentCode").isNotNull();
-		});
-	}
-
-	@Test
-	void shouldMapperToBankTransferDomain() {
-		assertDoesNotThrow(() -> {
-			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(bankResponse, MidtransDomain.TransactionResponse.class);
-			assertThat(validator.validate(transactionResponse)).isEmpty();
-			assertThat(transactionResponse).isInstanceOf(MidtransDomain.BankTransferResponse.class)
-				.asInstanceOf(InstanceOfAssertFactories.type(MidtransDomain.BankTransferResponse.class))
-				.extracting(MidtransDomain.BankTransferResponse::getVaNumbers).isNotNull()
-				.asInstanceOf(InstanceOfAssertFactories.list(MidtransDomain.EWalletResponse.Action.class))
-				.hasSize(1);
-		});
-	}
-
-	@Test
-	void shouldMapperToEWalletDomain() {
 		assertDoesNotThrow(() -> {
 			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(eWalletResponse, MidtransDomain.TransactionResponse.class);
 			assertThat(validator.validate(transactionResponse)).isEmpty();
@@ -146,6 +169,8 @@ class MidtransDomainTest {
 				.extracting(MidtransDomain.EWalletResponse::getActions)
 				.asInstanceOf(InstanceOfAssertFactories.list(MidtransDomain.EWalletResponse.Action.class))
 				.hasSize(4);
+
+			assertThat(transactionResponse.getStatusCode()).isEqualTo(201);
 		});
 	}
 
@@ -184,4 +209,59 @@ class MidtransDomainTest {
 			assertThat(transactionRequest).isEqualTo(eWalletRequest);
 		});
 	}
+
+	@Test
+	void paymentMethodShouldGeneratedByType() {
+		assertDoesNotThrow(() -> {
+			MidtransDomain.PaymentMethod method = MidtransDomain.PaymentMethod.of("cstore");
+			assertThat(method).isEqualTo(MidtransDomain.PaymentMethod.CSTORE);
+		});
+	}
+
+	@Test
+	void paymentMethodCannotCreateUnsupportedPaymentType() {
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+			MidtransDomain.PaymentMethod.of("cs");
+		});
+		assertThat(thrown.getMessage())
+			.isEqualToIgnoringCase("Unknown payment method type: cs");
+	}
+
+	@Test
+	void paymentMethodShouldGeneratedBySubType() {
+		MidtransDomain.PaymentMethod method = MidtransDomain.PaymentMethod.fromSubType("alfamart");
+		assertThat(method)
+			.isEqualTo(MidtransDomain.PaymentMethod.CSTORE);
+	}
+
+	@Test
+	void paymentMethodShouldNotGeneratedBySubType() {
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+			MidtransDomain.PaymentMethod.fromSubType("toko cina");
+		});
+		assertThat(thrown.getMessage())
+			.isEqualToIgnoringCase("Unknown payment method from sub-type: toko cina");
+	}
+
+	@Test
+	void creditCardShouldMappedToJson() {
+		MidtransDomain.CreditCard creditCard = new MidtransDomain.CreditCard("ichikiwir", true);
+		assertDoesNotThrow(() -> {
+			String creditCardJson = mapper.writeValueAsString(creditCard);
+			assertThat(creditCardJson)
+				.contains("token_id", "authentication");
+		});
+	}
+
+	@Test
+	void shouldSerializeCustomerDetailsCorrectly() {
+		MidtransDomain.CustomerDetails customerDetails = new MidtransDomain.CustomerDetails("joko", "example@gmail.com");
+		assertDoesNotThrow(() -> {
+			assertThat(validator.validate(customerDetails)).isEmpty();
+			String customerDetailsJson = mapper.writeValueAsString(customerDetails);
+			assertThat(customerDetailsJson)
+				.contains("name", "email");
+		});
+	}
+
 }

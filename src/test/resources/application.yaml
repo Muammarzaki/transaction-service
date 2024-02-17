@@ -17,3 +17,6 @@ spring:
   sql:
     init:
       mode: always
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+

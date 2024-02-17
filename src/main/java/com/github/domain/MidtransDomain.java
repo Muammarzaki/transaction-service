@@ -36,6 +36,14 @@ public abstract class MidtransDomain {
 		}
 	}
 
+	@Data
+	public static class StatusResponse {
+		@NotNull(message = "cannot null")
+		private int statusCode;
+		private String statusMessage;
+	}
+
+	@EqualsAndHashCode(callSuper = true)
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "payment_type", visible = true)
 	@JsonSubTypes({
@@ -45,7 +53,7 @@ public abstract class MidtransDomain {
 		@JsonSubTypes.Type(value = BankTransferResponse.class, name = "bank_transfer")
 	})
 	@Data
-	public static abstract class TransactionResponse {
+	public static abstract class TransactionResponse extends StatusResponse {
 		@NotNull(message = "must provide the value")
 		@PositiveOrZero(message = "gross amount should have 0 or greater")
 		private double grossAmount;
@@ -69,7 +77,6 @@ public abstract class MidtransDomain {
 		private LocalDateTime transactionTime;
 		@NotBlank(message = "cannot blank or null")
 		private String fraudStatus;
-
 	}
 
 	@JsonTypeName("cstore")
@@ -139,18 +146,6 @@ public abstract class MidtransDomain {
 	) {
 	}
 
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	public record Items(
-		@NotBlank(message = "cannot blank or null")
-		String itemId,
-		@NotBlank(message = "cannot blank or null")
-		String itemName,
-		@Positive(message = "must be positive value and not zero")
-		int count,
-		@Positive(message = "must be positive value and not zero")
-		double price) {
-	}
-
 	public enum PaymentMethod {
 		CREDIT_CARD("credit_card", Collections.emptyList()),
 		CSTORE("cstore", List.of("alfamart", "indomaret")),
@@ -181,7 +176,7 @@ public abstract class MidtransDomain {
 					return method;
 				}
 			}
-			throw new IllegalArgumentException(String.format("Unknown PaymentMethod type: %s", type));
+			throw new IllegalArgumentException(String.format("Unknown payment method type: %s", type));
 		}
 
 		public static PaymentMethod fromSubType(String subType) {
@@ -190,7 +185,7 @@ public abstract class MidtransDomain {
 					return method;
 				}
 			}
-			throw new IllegalArgumentException(String.format("Unknown PaymentMethod sub-type: %s", subType));
+			throw new IllegalArgumentException(String.format("Unknown payment method from sub-type: %s", subType));
 		}
 	}
 

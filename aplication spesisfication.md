@@ -658,8 +658,11 @@ attribute customer_details and items\
 
 #### Important Response Attribute
 
+##### Success
+
 ```json
 {
+  "status_code": 200,
   "status_message": "GO-PAY transaction is created",
   "currency": "IDR",
   "fraud_status": "accept",
@@ -669,5 +672,14 @@ attribute customer_details and items\
   "transaction_id": "d615df87-c96f-4f5c-9d35-2d740d54c1a9",
   "transaction_status": "pending",
   "transaction_time": "2020-01-09 15:16:19"
+}
+```
+
+#### Fail
+
+```json
+{
+  "status_code": 433,
+  "status_message": "foobar"
 }
 ```

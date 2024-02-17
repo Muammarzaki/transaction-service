@@ -1,41 +1,46 @@
 package com.github.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.domain.MidtransDomain;
 import com.github.domain.TransactionDomain;
-import com.github.entites.CustomerInfoEntity;
-import com.github.entites.ItemEntity;
 import com.github.entites.TransactionEntity;
 import com.github.repository.TransactionRepository;
-import com.sun.nio.sctp.IllegalReceiveException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Service
 public class MidtransTransactionImpl implements TransactionService {
 
+	public static final String BASE_URL = "https://api.sandbox.midtrans.com/v2";
 	private final RestClient restClient;
 	private final TransactionRepository repository;
+	public final ObjectMapper objectMapper;
 
-	public MidtransTransactionImpl(RestClient.Builder restClient, String serverKey, TransactionRepository repository) {
+	public MidtransTransactionImpl(RestClient.Builder restClient, @Value("${midtrans.server-key}") String serverKey, TransactionRepository repository, ObjectMapper objectMapper) {
 		this.repository = repository;
+		this.objectMapper = objectMapper;
 
-		final String AUTH_STRING = String.format("%s:", serverKey);
+		final String AUTH_STRING = serverKey + ":";
 		String credential = String.format("Basic %s", Base64.getEncoder().encodeToString(AUTH_STRING.getBytes(StandardCharsets.UTF_8)));
 		this.restClient = restClient
-			.baseUrl("https://api.sandbox.midtrans.com/v2")
-			.defaultHeader("Authorization", credential)
-			.defaultHeader("Content-Type", "application/json")
-			.defaultHeader("Accept", "application/json")
+			.baseUrl(BASE_URL)
+			.defaultHeader(HttpHeaders.AUTHORIZATION, credential)
+			.defaultHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+			.defaultHeader(HttpHeaders.ACCEPT, APPLICATION_JSON_VALUE)
 			.build();
 	}
 
@@ -45,54 +50,95 @@ public class MidtransTransactionImpl implements TransactionService {
 		TransactionDomain.CustomerDomain customer = dataCreate.customer();
 
 		MidtransDomain.PaymentMethod paymentType = MidtransDomain.PaymentMethod.fromSubType(dataCreate.transactMethod());
+
 		MidtransDomain.TransactionRequest transactionRequest = MidtransDomain.TransactionRequest.builder()
 			.paymentType(paymentType)
+			.transactionDetails(new MidtransDomain.TransactionDetails(UUID.randomUUID().toString(), dataCreate.mount()))
 			.items(dataCreate.items())
 			.customerDetails(new MidtransDomain.CustomerDetails(customer.username(), "example@gmail.com"))
-			.transactionDetails(new MidtransDomain.TransactionDetails(UUID.randomUUID().toString(), dataCreate.mount()))
 			.build();
 
 		Object anyData = switch (paymentType) {
-			case CSTORE -> new MidtransDomain.Cstore(dataCreate.transactMethod(), "");
+			case CSTORE -> new MidtransDomain.Cstore(dataCreate.transactMethod(), "--");
 			case BANK_TRANSFER -> new MidtransDomain.BankTransfer(dataCreate.transactMethod());
 			default -> throw new IllegalArgumentException("payment method not supported");
 		};
 
 		transactionRequest.addAny(paymentType.getType(), anyData);
 
-		ResponseEntity<MidtransDomain.TransactionResponse> response = restClient.post().uri("/charge")
+		MidtransDomain.TransactionResponse mResponse = restClient.post()
+			.uri("/charge")
 			.body(transactionRequest)
-			.retrieve().toEntity(MidtransDomain.TransactionResponse.class);
-		MidtransDomain.TransactionResponse responseBody = Optional.ofNullable(response.getBody()).orElseThrow(() -> new IllegalReceiveException("response body are empty"));
+			.exchange((clientRequest, clientResponse) -> {
+				String bodyResponse = clientResponse.bodyTo(String.class);
+				HttpStatusCode statusCode = clientResponse.getStatusCode();
+				if (statusCode.isSameCodeAs(HttpStatusCode.valueOf(429))) {
+					throw new HttpClientErrorException(statusCode, "API rate limit exceeded");
+				}
+				MidtransDomain.StatusResponse status = objectMapper.readValue(bodyResponse, MidtransDomain.StatusResponse.class);
+				if (statusCode.is2xxSuccessful()) {
+					if (status.getStatusCode() == 201)
+						return objectMapper.readValue(bodyResponse, MidtransDomain.TransactionResponse.class);
+				}
+				throw new HttpClientErrorException(HttpStatusCode.valueOf(status.getStatusCode()), status.getStatusMessage());
+			});
 
-		TransactionEntity.builder()
-			.transact_id(responseBody.getTransactionId())
-			.customerInfo(CustomerInfoEntity.builder().username(customer.username()).userId(customer.userId()).build())
-			.mount(dataCreate.mount())
-			.orderId(responseBody.getOrderId())
-			.transactMethod(dataCreate.transactMethod())
-			.transactOn(Instant.parse(responseBody.getTransactionTime()))
-			.currency(String.valueOf(responseBody.getCurrency()))
-			.items(dataCreate.items().stream().map(itm -> ItemEntity.builder()
-					.ItemId(itm.itemId())
-					.count(itm.count())
-					.price(itm.price())
-					.build())
-				.collect(Collectors.toList()));
+		TransactionEntity entity = Optional.of(mResponse)
+			.map(x -> TransactionEntity.builder()
+				.transactStatus(x.getTransactionStatus())
+				.transactOn(x.getTransactionTime().toInstant(ZoneOffset.UTC))
+				.transactMethod(dataCreate.transactMethod())
+				.transactId(x.getTransactionId())
+				.mount(x.getGrossAmount())
+				.items(TransactionDomain.ItemsDomain.convertToItemEntity(dataCreate.items()))
+				.customerInfo(TransactionDomain.CustomerDomain.convertToCustomerInfo(dataCreate.customer()))
+				.currency(String.valueOf(x.getCurrency()))
+				.orderId(x.getOrderId())
+				.build())
+			.orElseThrow(() -> new NoSuchElementException("midtrans does not have response body or empty"));
+
+		repository.save(entity);
 	}
 
 	@Override
-	public void removeTransaction(String transactId) {
+	public void cancelTransaction(String orderId) {
+		ResponseEntity<Void> response = restClient.post()
+			.uri("/{orderId}/cancel", orderId)
+			.exchange((clientRequest, clientResponse) -> {
+				HttpStatusCode statusCode = clientResponse.getStatusCode();
+				String bodyResponse = clientResponse.bodyTo(String.class);
+				if (statusCode.is2xxSuccessful()) {
+					MidtransDomain.TransactionResponse transactionResponse = objectMapper.readValue(bodyResponse, MidtransDomain.TransactionResponse.class);
 
+				}
+				return null;
+			});
 	}
 
 	@Override
-	public List<TransactionDomain> getAllTransaction() {
-		return null;
+	public List<TransactionDomain.Response> getAllTransaction() {
+		return repository.findAll().stream().map(x -> TransactionDomain.Response.builder()
+				.transactFinishOn(LocalDateTime.from(x.getTransactFinishOn()))
+				.transactMethod(x.getTransactMethod())
+				.transactOn(LocalDateTime.from(x.getTransactOn()))
+				.transactStatus(x.getTransactStatus())
+				.orderId(x.getOrderId())
+				.build())
+			.collect(Collectors.toList());
 	}
 
 	@Override
-	public TransactionDomain checkTransaction(String transactId) {
-		return null;
+	public TransactionDomain.Response checkTransaction(String orderId) {
+		return repository.findByOrderId(orderId).map(x -> TransactionDomain.Response.builder()
+				.transactStatus(x.getTransactStatus())
+				.orderId(x.getOrderId())
+				.transactFinishOn(LocalDateTime.from(x.getTransactFinishOn()))
+				.transactMethod(x.getTransactMethod()).transactOn(LocalDateTime.from(x.getTransactOn()))
+				.mount(x.getMount())
+				.currency(Currency.getInstance(x.getCurrency()))
+				.customer(TransactionDomain.CustomerDomain.convertFromCustomerInfo(x.getCustomerInfo()))
+				.items(TransactionDomain.ItemsDomain.convertFromListOfItemEntity(x.getItems()))
+				.build())
+			.orElseThrow(() -> new NoSuchElementException("transaction with order_id %s not exits"));
 	}
 }
