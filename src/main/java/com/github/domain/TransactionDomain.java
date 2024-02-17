@@ -58,13 +58,16 @@ public abstract class TransactionDomain {
 				.sum();
 		}
 
-		public static ItemsDomain convertFromListOfItemDomain(List<ItemEntity> items) {
+		public static ItemsDomain convertFromListOfItemEntity(List<ItemEntity> items) {
+			if (items == null) throw new IllegalArgumentException("Item Entity null");
 			return items.stream().map(ItemDomain::convertFromItemEntity).collect(Collectors.toCollection(ItemsDomain::new));
 		}
 
 		public static List<ItemEntity> convertToItemEntity(ItemsDomain domain) {
+			if (domain == null) throw new IllegalArgumentException("Items Domain null");
 			return domain.stream().map(itm -> ItemEntity.builder()
 					.ItemId(itm.itemId())
+					.itemName(itm.itemName())
 					.count(itm.count())
 					.price(itm.price())
 					.build())
@@ -83,10 +86,12 @@ public abstract class TransactionDomain {
 
 		) {
 			public static ItemDomain convertFromItemEntity(ItemEntity entity) {
+				if (entity == null) throw new IllegalArgumentException("Item entity null");
 				return new ItemDomain(entity.getItemId(), entity.getItemName(), entity.getCount(), entity.getPrice());
 			}
 
 			public static ItemEntity convertToItemEntity(ItemDomain domain) {
+				if (domain == null) throw new IllegalArgumentException("Item domain null");
 				return ItemEntity.builder()
 					.ItemId(domain.itemId)
 					.itemName(domain.itemName)
@@ -103,7 +108,7 @@ public abstract class TransactionDomain {
 		@NotBlank
 		@NotNull String username
 	) {
-		public CustomerInfoEntity convertToCustomerInfo(CustomerDomain domain) {
+		public static CustomerInfoEntity convertToCustomerInfo(CustomerDomain domain) {
 			return CustomerInfoEntity.builder()
 				.userId(domain.userId)
 				.username(domain.username)
