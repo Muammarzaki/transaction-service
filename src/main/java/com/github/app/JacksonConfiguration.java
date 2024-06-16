@@ -6,11 +6,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
 public class JacksonConfiguration {
 	@Bean
-	public Jackson2ObjectMapperBuilderCustomizer JacksonCustomizer() {
+	@Primary
+	public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
 		return builder -> builder
 			.modules(new JavaTimeModule())
 			.serializationInclusion(JsonInclude.Include.NON_EMPTY)

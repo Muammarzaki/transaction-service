@@ -1,15 +1,18 @@
 package com.github.services;
 
 import com.github.domain.TransactionDomain;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.util.List;
 
 public interface TransactionService {
-	public void createTransaction(TransactionDomain.CreateTransact dataCreate);
+	@Transactional
+	TransactionDomain.Response createTransaction(TransactionDomain.CreateTransact dataCreate, ZoneId zoneId);
 
 	public void cancelTransaction(String transactId);
 
-	public List<TransactionDomain.Response> getAllTransaction();
+	public List<TransactionDomain.Response> getAllTransaction(ZoneId zoneId);
 
-	public TransactionDomain.Response checkTransaction(String transactId);
+	public TransactionDomain.Response checkTransaction(String transactId, ZoneId zoneId);
 }

@@ -42,7 +42,7 @@ class ResponseViewDomainTest {
 	}
 
 	@Test
-	public void JsonStringShouldCanDeserializeToPoJo() throws JsonProcessingException {
+	void JsonStringShouldCanDeserializeToPoJo() throws JsonProcessingException {
 		String jsonFormat = "{\"status\":\"OK\",\"status_code\":200,\"data\":{},\"message\":{}}";
 
 		ResponseDomain domain = ResponseDomain.builder().status(HttpStatus.OK.name()).statusCode(200).message(new HashMap<>()).data(new HashMap<>()).build();

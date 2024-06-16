@@ -12,11 +12,15 @@ spring:
       enabled: true
 
   jpa:
+    show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
   sql:
     init:
       mode: always
+
   jackson:
     property-naming-strategy: SNAKE_CASE
 
+midtrans:
+  server-key: secret

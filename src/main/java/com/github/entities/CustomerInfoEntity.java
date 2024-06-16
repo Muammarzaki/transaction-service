@@ -1,4 +1,4 @@
-package com.github.entites;
+package com.github.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,8 +17,9 @@ import lombok.NoArgsConstructor;
 @Table(name = "customer_info")
 public class CustomerInfoEntity {
 	@Id
+	@Column(name = "user_id")
 	String userId;
-	@Column(nullable = false)
+	@Column(name = "username", nullable = false)
 	String username;
 
 }

@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.app.JacksonConfigurationTest;
-import com.github.entites.CustomerInfoEntity;
-import com.github.entites.ItemEntity;
+import com.github.entities.CustomerInfoEntity;
+import com.github.entities.ItemEntity;
+import com.github.helpers.CustomerAdapter;
+import com.github.helpers.ItemAdapter;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;
@@ -43,7 +45,6 @@ class TransactionDomainTest {
 
 	@Test
 	void jsonShouldSerializeToPojo() {
-		String transactID = UUID.randomUUID().toString();
 		String paymentID = UUID.randomUUID().toString();
 		LocalDateTime now = LocalDateTime.now(clock);
 
@@ -52,19 +53,18 @@ class TransactionDomainTest {
 		Currency currency = Currency.getInstance("IDR");
 		float mount = 60000;
 		String method = "gopay";
-		TransactionDomain.Response domain = TransactionDomain.Response.builder().transactId(transactID).orderId(paymentID).transactOn(now).transactFinishOn(transactFinishOn).transactStatus(transactStatus).items(new TransactionDomain.ItemsDomain()).customer(new TransactionDomain.CustomerDomain(null, null)).transactMethod(method).mount(mount).currency(currency).build();
+		TransactionDomain.Response domain = TransactionDomain.Response.builder().orderId(paymentID).transactOn(now).transactFinishOn(transactFinishOn).transactStatus(transactStatus).items(new TransactionDomain.ItemsDomain()).customer(new TransactionDomain.CustomerDomain(null, null)).transactMethod(method).grossAmount(mount).currency(currency).build();
 		String jsonFormat = """
 			{
-			    "transact_id": "%s",
 			    "order_id": "%s",
 			    "transact_status": "%s",
-			    "mount": %f,
+			    "gross_amount": %f,
 			    "currency": "%s",
 			    "transact_on": "%s",
 			    "transact_finish_on": "%s",
 			    "transact_method": "%s",
 			    "items": [],
-			    "customer": {}}""".formatted(transactID, paymentID, transactStatus, mount, currency, now.format(dateFormat), transactFinishOn.format(dateFormat), method);
+			    "customer": {}}""".formatted(paymentID, transactStatus, mount, currency, now.format(dateFormat), transactFinishOn.format(dateFormat), method);
 
 		Assertions.assertDoesNotThrow(() -> {
 			JsonNode domainNode = mapper.readTree(mapper.writeValueAsString(domain));
@@ -95,12 +95,12 @@ class TransactionDomainTest {
 		TransactionDomain.ItemsDomain.ItemDomain itemDomain1 = new TransactionDomain.ItemsDomain.ItemDomain("barang-1", "indomie", 3, 3_500.0);
 		TransactionDomain.ItemsDomain.ItemDomain itemDomain2 = new TransactionDomain.ItemsDomain.ItemDomain("barang-2", "nutrisari", 2, 1_000.0);
 
-		ItemEntity itemEntity1 = TransactionDomain.ItemsDomain.ItemDomain.convertToItemEntity(itemDomain1);
+		ItemEntity itemEntity1 = ItemAdapter.convertFromListOfItemEntityToItemEntity(itemDomain1);
 		assertThat(itemEntity1)
-			.extracting("itemId", "count").contains("barang-1", 3);
-		assertThat(TransactionDomain.ItemsDomain.ItemDomain.convertFromItemEntity(itemEntity1))
+			.extracting("itemId", "quantity").contains("barang-1", 3);
+		assertThat(ItemAdapter.convertFromItemEntityToItemDomain(itemEntity1))
 			.isEqualTo(itemDomain1)
-			.extracting("itemId", "count", "price", "itemName")
+			.extracting("itemId", "quantity", "price", "itemName")
 			.contains("barang-1", 3, 3500.0, "indomie");
 
 		TransactionDomain.ItemsDomain items = new TransactionDomain.ItemsDomain();
@@ -117,14 +117,14 @@ class TransactionDomainTest {
 		assertThat(items.getTotalPrice())
 			.isEqualTo(12_500.0);
 
-		List<ItemEntity> itemEntities = TransactionDomain.ItemsDomain.convertToItemEntity(items);
+		List<ItemEntity> itemEntities = ItemAdapter.convertFromListOfItemEntityToItemEntity(items);
 		assertThat(itemEntities)
-			.extracting("itemId", "count").containsExactly(
+			.extracting("itemId", "quantity").containsExactly(
 				tuple("barang-1", 3),
 				tuple("barang-2", 2)
 			);
 
-		TransactionDomain.ItemsDomain itemsDomainFromItemEntity = TransactionDomain.ItemsDomain.convertFromListOfItemEntity(itemEntities);
+		TransactionDomain.ItemsDomain itemsDomainFromItemEntity = ItemAdapter.convertFromListOfItemEntityToItemsDomain(itemEntities);
 		assertThat(itemsDomainFromItemEntity).isEqualTo(items);
 	}
 
@@ -135,9 +135,9 @@ class TransactionDomainTest {
 		TransactionDomain.ItemsDomain items = new TransactionDomain.ItemsDomain();
 		items.add(itemDomain1);
 		items.add(itemDomain2);
-		TransactionDomain.CreateTransact createTransact = new TransactionDomain.CreateTransact(2000, Currency.getInstance("IDR"), "alfamart", items, new TransactionDomain.CustomerDomain("ichikiwir", "joko"));
+		TransactionDomain.CreateTransact createTransact = new TransactionDomain.CreateTransact(2000d, Currency.getInstance("IDR"), "alfamart", items, new TransactionDomain.CustomerDomain("ichikiwir", "joko"));
 		assertThat(createTransact)
-			.extracting("mount", "currency", "transactMethod", "customer.username")
+			.extracting("grossAmount", "currency", "transactMethod", "customer.username")
 			.contains(2000.0, Currency.getInstance("IDR"), "alfamart", "joko");
 	}
 
@@ -148,12 +148,12 @@ class TransactionDomainTest {
 			.extracting("userId", "username")
 			.containsExactly("ichikiwir", "jonathan");
 
-		CustomerInfoEntity customerInfoFromCustomerDomain = TransactionDomain.CustomerDomain.convertToCustomerInfo(customerDomain);
+		CustomerInfoEntity customerInfoFromCustomerDomain = CustomerAdapter.convertToCustomerInfo(customerDomain);
 		assertThat(customerInfoFromCustomerDomain)
 			.extracting("userId", "username")
 			.containsExactly(customerDomain.userId(), customerDomain.username());
 
-		assertThat(TransactionDomain.CustomerDomain.convertFromCustomerInfo(customerInfoFromCustomerDomain))
+		assertThat(CustomerAdapter.convertFromCustomerInfo(customerInfoFromCustomerDomain))
 			.isEqualTo(customerDomain);
 
 	}

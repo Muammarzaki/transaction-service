@@ -1,4 +1,4 @@
-package com.github.entites;
+package com.github.entities;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -19,8 +19,9 @@ class ItemEntityTest {
 
 	@Test
 	void shouldestSaveNewItem() {
-		ItemEntity dataItem = ItemEntity.builder().ItemId("1234").itemName("chocolate")
-			.price(20000).count(100).build();
+		ItemEntity dataItem = ItemEntity.builder()
+			.itemId("1234").itemName("chocolate")
+			.price(20000).quantity(100).build();
 
 		assertDoesNotThrow(() -> {
 			ItemEntity savedItem = entityManager.persistAndFlush(dataItem);

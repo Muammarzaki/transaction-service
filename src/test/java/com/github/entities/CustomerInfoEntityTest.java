@@ -1,4 +1,4 @@
-package com.github.entites;
+package com.github.entities;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Tag;

@@ -53,7 +53,7 @@ public abstract class MidtransDomain {
 		@JsonSubTypes.Type(value = BankTransferResponse.class, name = "bank_transfer")
 	})
 	@Data
-	public static abstract class TransactionResponse extends StatusResponse {
+	public abstract static class TransactionResponse extends StatusResponse {
 		@NotNull(message = "must provide the value")
 		@PositiveOrZero(message = "gross amount should have 0 or greater")
 		private double grossAmount;
@@ -204,5 +204,12 @@ public abstract class MidtransDomain {
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record CreditCard(@NotEmpty(message = "cannot empty") String tokenId, boolean authentication) {
+	}
+
+	@Setter
+	@Getter
+	public static class TransactionNotificationRequest {
+		@JsonUnwrapped
+		private TransactionResponse transactionResponse;
 	}
 }

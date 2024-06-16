@@ -1,22 +1,16 @@
 package com.github.app;
 
-import com.github.security.AuthenticationController;
-import com.github.security.Encoding;
-import com.github.security.UserDetailServiceImp;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
-@ContextConfiguration(classes = {
-	AuthenticationController.class,
-	UserDetailServiceImp.class,
-	Encoding.class
-})
+@Slf4j
 class TransactionServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
+		log.debug("context Loads start");
 	}
 
 }

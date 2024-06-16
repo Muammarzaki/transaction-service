@@ -29,5 +29,6 @@ public class JacksonConfigurationTest {
 	void mapperConfigurationValidators() {
 		PropertyNamingStrategy propertyNamingStrategy = mapper.getPropertyNamingStrategy();
 		assertThat(propertyNamingStrategy).isInstanceOf(PropertyNamingStrategies.SnakeCaseStrategy.class);
+		System.out.println(propertyNamingStrategy);
 	}
 }

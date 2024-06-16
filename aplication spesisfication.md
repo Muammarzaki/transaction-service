@@ -26,7 +26,6 @@ Request
 
 Response
 
-**Status Code Created**
 
 [GET] **/transact/check?id=id**
 
@@ -37,10 +36,9 @@ Response
   "status_code": 200,
   "status": "http.ok",
   "data": {
-    "transact_id": "id",
     "order_id": "id_payment",
     "transact_status": "done|pending|fail|cancel",
-    "mount": 40000,
+    "gross_mount": 40000,
     "currency": "IDR",
     "transact_on": "timestamp",
     "transact_finish_on": "fill if transact_status is done",
@@ -49,7 +47,7 @@ Response
       {
         "item_id": "random",
         "item_name": "megicom",
-        "count": 2,
+        "quantity": 2,
         "price": 20000
       }
     ],
@@ -90,7 +88,6 @@ Response
   "status_code": 200,
   "status": "http.ok",
   "data": {
-    "transact_id": "id",
     "order_id": "id_payment",
     "transact_status": "done|pending|fail|cancel",
     "mount": 40000,
@@ -102,7 +99,7 @@ Response
       {
         "item_id": "random",
         "item_name": "megicom",
-        "count": 2,
+        "quantity": 2,
         "price": 20000
       }
     ],
@@ -127,7 +124,7 @@ Request
     {
       "item_id": "random",
       "item_name": "megicom",
-      "count": 2,
+      "quantity": 2,
       "price": 20000
     }
   ],
@@ -146,7 +143,6 @@ Response
   "status_code": 200,
   "status": "http.ok",
   "data": {
-    "transact_id": "id",
     "order_id": "id_payment",
     "transact_status": "done|pending|fail|cancel",
     "mount": 40000,
@@ -158,7 +154,7 @@ Response
       {
         "item_id": "random",
         "item_name": "megicom",
-        "count": 2,
+        "quantity": 2,
         "price": 20000
       }
     ],
