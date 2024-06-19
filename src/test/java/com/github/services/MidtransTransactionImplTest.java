@@ -312,7 +312,7 @@ class MidtransTransactionImplTest {
 	}
 
 	@Test
-	void testCancelTheTransactionButItFailCauseMerchantDeclineTheRequest() {
+	void shouldCancelTheTransactionButItFailCauseMerchantDeclineTheRequest() {
 		String orderId = "order-3";
 		server.expect(requestTo("https://api.sandbox.midtrans.com/v2/" + orderId + "/cancel"))
 			.andRespond(withSuccess(midtransBankTranferCancelWithFailResponse, MediaType.APPLICATION_JSON));
@@ -327,7 +327,7 @@ class MidtransTransactionImplTest {
 	}
 
 	@Test
-	void testFindAllTransactionWithOneEntity() {
+	void shouldFindAllTransactionWithOneEntity() {
 		when(repository.findAll()).thenReturn(List.of(transactionData));
 
 		List<TransactionDomain.Response> allTransaction = midtransTransactionService.getAllTransaction(TimeZone.getDefault().toZoneId());
@@ -340,7 +340,7 @@ class MidtransTransactionImplTest {
 	}
 
 	@Test
-	void testFindAllTransactionWithOneEntityAndTransactFinishOnExits() {
+	void shouldFindAllTransactionWithOneEntityAndTransactFinishOnExits() {
 		Instant transactFinishOn = transactionData.getTransactOn().plus(Period.ofDays(5));
 		transactionData.setTransactFinishOn(transactFinishOn);
 		when(repository.findAll()).thenReturn(List.of(transactionData));
@@ -355,7 +355,7 @@ class MidtransTransactionImplTest {
 	}
 
 	@Test
-	void testCheckTheTransactionWithTransactionFinishOnNotExits() {
+	void checkTheTransactionWithTransactionFinishOnNotExits() {
 		when(repository.findByOrderId(anyString())).thenAnswer(new FindTransaction());
 
 		TransactionDomain.Response entityResponse = midtransTransactionService.checkTransaction("order-1", ZoneId.systemDefault());
@@ -367,7 +367,7 @@ class MidtransTransactionImplTest {
 	}
 
 	@Test
-	void testCheckTheTransactionWithTransactionFinishOnExits() {
+	void checkTheTransactionWithTransactionFinishOnExits() {
 		when(repository.findByOrderId(anyString())).thenAnswer(new FindTransaction());
 
 		TransactionDomain.Response entityResponse = midtransTransactionService.checkTransaction("order-4", ZoneId.systemDefault());
@@ -379,7 +379,7 @@ class MidtransTransactionImplTest {
 	}
 
 	@Test
-	void testCheckTheTransactionButNotExits() {
+	void checkTheTransactionButNotExits() {
 		when(repository.findByOrderId(anyString())).thenAnswer(new FindTransaction());
 		ZoneId zoneId = ZoneId.systemDefault();
 		RuntimeException noSuchElementException = assertThrows(TransactionNotFoundException.class, () ->

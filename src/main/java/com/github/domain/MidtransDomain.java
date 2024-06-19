@@ -207,5 +207,4 @@ public abstract class MidtransDomain {
 	public record CreditCard(@NotEmpty(message = "cannot empty") String tokenId, boolean authentication) {
 	}
 
-
 }

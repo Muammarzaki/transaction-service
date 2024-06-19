@@ -64,10 +64,4 @@ public class TransactionController {
 			.status("transaction successfully created")
 			.build();
 	}
-
-	@ResponseStatus(HttpStatus.OK)
-	@PostMapping("/notify")
-	public void transactionNotification(TimeZone timeZone) {
-		log.info("");
-	}
 }
