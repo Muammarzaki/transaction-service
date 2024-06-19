@@ -3,6 +3,7 @@ package com.github.domain;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.github.helpers.UndefinedPaymentMethodException;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -176,7 +177,7 @@ public abstract class MidtransDomain {
 					return method;
 				}
 			}
-			throw new IllegalArgumentException(String.format("Unknown payment method type: %s", type));
+			throw new UndefinedPaymentMethodException(String.format("Unknown payment method type: %s", type));
 		}
 
 		public static PaymentMethod fromSubType(String subType) {
@@ -185,7 +186,7 @@ public abstract class MidtransDomain {
 					return method;
 				}
 			}
-			throw new IllegalArgumentException(String.format("Unknown payment method from sub-type: %s", subType));
+			throw new UndefinedPaymentMethodException(String.format("Unknown payment method from sub-type: %s", subType));
 		}
 	}
 
@@ -206,10 +207,5 @@ public abstract class MidtransDomain {
 	public record CreditCard(@NotEmpty(message = "cannot empty") String tokenId, boolean authentication) {
 	}
 
-	@Setter
-	@Getter
-	public static class TransactionNotificationRequest {
-		@JsonUnwrapped
-		private TransactionResponse transactionResponse;
-	}
+
 }

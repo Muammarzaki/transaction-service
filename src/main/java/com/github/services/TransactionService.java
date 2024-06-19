@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface TransactionService {
 	@Transactional
-	TransactionDomain.Response createTransaction(TransactionDomain.CreateTransact dataCreate, ZoneId zoneId);
+	TransactionDomain.Response createTransaction(TransactionDomain.CreateTransact transact, ZoneId zoneId);
 
 	public void cancelTransaction(String transactId);
 

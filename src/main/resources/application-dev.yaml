@@ -1,0 +1,15 @@
+logging:
+  level:
+    root: DEBUG
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/dev_database
+    username: root
+    password: secret
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+midtrans:
+  server-key: ${KEY}
+  url: https://api.sandbox.midtrans.com

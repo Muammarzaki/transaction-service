@@ -1,8 +1,6 @@
 package com.github.helpers;
 
-import java.util.NoSuchElementException;
-
-public class TransactionNotFoundException extends NoSuchElementException {
+public class TransactionNotFoundException extends RuntimeException {
 	public TransactionNotFoundException(String message) {
 		super(message);
 	}
