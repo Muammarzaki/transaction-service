@@ -3,8 +3,6 @@ package com.github.domain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.app.JacksonConfigurationTest;
 import com.github.helpers.UndefinedPaymentMethodException;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -23,11 +21,9 @@ class MidtransDomainTest {
 	MidtransDomain.TransactionRequest eWalletRequest;
 
 	ObjectMapper mapper;
-	private Validator validator;
 
 	@BeforeEach
 	void setUp() {
-		validator = Validation.buildDefaultValidatorFactory().getValidator();
 		mapper = JacksonConfigurationTest.getConfig();
 
 		MidtransDomain.TransactionDetails transactionDetails = new MidtransDomain.TransactionDetails("order-101", 44000);
@@ -62,36 +58,11 @@ class MidtransDomainTest {
 			}""";
 		assertDoesNotThrow(() -> {
 			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(cstoreResponse, MidtransDomain.TransactionResponse.class);
-			assertThat(validator.validate(transactionResponse)).isEmpty();
 			assertThat(transactionResponse).isInstanceOf(MidtransDomain.CStoreResponse.class)
 				.extracting("paymentCode", "statusCode").contains("8127740588870520", 201);
 		});
 	}
 
-	@Test
-	void shouldNotMapperToCStoreDomainCauseGrossAmountIsNotValid() {
-		String cstoreResponse = """
-			{
-			  "status_code": "201",
-			  "status_message": "Success, cstore transaction is successful",
-			  "transaction_id": "d615df87-c96f-4f5c-9d35-2d740d54c1a9",
-			  "order_id": "order-101o-1578557780",
-			  "merchant_id": "G812785002",
-			  "gross_amount": "-1.0",
-			  "currency": "IDR",
-			  "payment_type": "cstore",
-			  "transaction_time": "2020-01-09 15:16:19",
-			  "transaction_status": "pending",
-			  "fraud_status": "accept",
-			  "payment_code": "8127740588870520",
-			  "store": "alfamart",
-			   "expiry_time": "2024-06-21 12:21:59"
-			}""";
-		assertDoesNotThrow(() -> {
-			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(cstoreResponse, MidtransDomain.TransactionResponse.class);
-			assertThat(validator.validate(transactionResponse)).isNotEmpty();
-		});
-	}
 
 	@Test
 	void shouldMapperToBankTransferDomain() {
@@ -118,7 +89,6 @@ class MidtransDomainTest {
 			}""";
 		assertDoesNotThrow(() -> {
 			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(bankResponse, MidtransDomain.TransactionResponse.class);
-			assertThat(validator.validate(transactionResponse)).isEmpty();
 			assertThat(transactionResponse).isInstanceOf(MidtransDomain.BankTransferResponse.class)
 				.asInstanceOf(InstanceOfAssertFactories.type(MidtransDomain.BankTransferResponse.class))
 				.extracting(MidtransDomain.BankTransferResponse::getVaNumbers).isNotNull()
@@ -168,7 +138,6 @@ class MidtransDomainTest {
 
 		assertDoesNotThrow(() -> {
 			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(eWalletResponse, MidtransDomain.TransactionResponse.class);
-			assertThat(validator.validate(transactionResponse)).isEmpty();
 			assertThat(transactionResponse).isInstanceOf(MidtransDomain.EWalletResponse.class)
 				.asInstanceOf(InstanceOfAssertFactories.type(MidtransDomain.EWalletResponse.class))
 				.extracting(MidtransDomain.EWalletResponse::getActions)
@@ -210,7 +179,6 @@ class MidtransDomainTest {
 			System.out.print(requestBody);
 
 			MidtransDomain.TransactionRequest transactionRequest = mapper.readValue(requestBody, MidtransDomain.TransactionRequest.class);
-			assertThat(validator.validate(transactionRequest)).isEmpty();
 			assertThat(transactionRequest).isEqualTo(eWalletRequest);
 		});
 	}
@@ -262,7 +230,6 @@ class MidtransDomainTest {
 	void shouldSerializeCustomerDetailsCorrectly() {
 		MidtransDomain.CustomerDetails customerDetails = new MidtransDomain.CustomerDetails("joko", null, "example@gmail.com", "628124423242");
 		assertDoesNotThrow(() -> {
-			assertThat(validator.validate(customerDetails)).isEmpty();
 			String customerDetailsJson = mapper.writeValueAsString(customerDetails);
 			assertThat(customerDetailsJson)
 				.contains("name", "email");
