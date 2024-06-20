@@ -1,7 +1,10 @@
 package com.github.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.time.Instant;
 
 @Data
 @Entity
@@ -9,5 +12,8 @@ import lombok.Data;
 public abstract class InvoiceEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
+	@JsonIgnore
 	private Long id;
+	@Column(name = "expired", nullable = false)
+	private Instant expired;
 }

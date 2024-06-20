@@ -41,7 +41,6 @@ class TransactionControllerTest {
 	ObjectMapper mapper;
 	static LocalDateTime fixTime = LocalDateTime.of(2021, 4, 4, 0, 0);
 
-
 	@Test
 	void testRequestCreateNewTransaction() {
 		assertDoesNotThrow(() -> {
@@ -53,15 +52,19 @@ class TransactionControllerTest {
 				  "items": [
 				    {
 				      "item_id": "random",
-				      "item_name": "megicom",
+				      "item_name": "comedic",
 				      "quantity": 2,
 				      "price": 20000.0
 				    }
 				  ],
 				  "customer": {
 				    "user_id": "random",
-				    "username": "joni"
-				  }
+				    "first_name": "joni",
+				    "last_name": "",
+				    "email" : "cp@example.com",
+				    "phone" : "62341243212"
+				  },
+				  "message" : "hello"
 				}""", TransactionDomain.CreateTransact.class);
 			when(service.createTransaction(any(TransactionDomain.CreateTransact.class), any(ZoneId.class)))
 				.thenAnswer(new TransactResponseAnswer());
@@ -73,6 +76,7 @@ class TransactionControllerTest {
 				.andExpectAll(status().isCreated(),
 					content().contentType(MediaType.APPLICATION_JSON),
 					jsonPath("$.status").value("transaction successfully created"),
+					jsonPath("$.data.customer.last_name").value(""),
 					jsonPath("$.data.order_id").value("order-1"),
 					jsonPath("$.data.transact_on").value("04-04-2021 00:00:00"),
 					jsonPath("$.data.transact_method").value("gopay"))
@@ -80,6 +84,7 @@ class TransactionControllerTest {
 
 		});
 	}
+
 
 	@Test
 	void testRequestCreateNewTransactionButErrorValidation() {
@@ -92,15 +97,19 @@ class TransactionControllerTest {
 				  "items": [
 				    {
 				      "item_id": "random",
-				      "item_name": "megicom",
+				      "item_name": "comedic",
 				      "quantity": -2,
 				      "price": 20000.0
 				    }
 				  ],
 				  "customer": {
 				    "user_id": "random",
-				    "username": "joni"
-				  }
+				    "first_name": "joni",
+				    "last_name" : "" ,
+				    "email" : "cp@example.com",
+				    "phone" : "62341243212"
+				  },
+				  "message" : "hello"
 				}""", TransactionDomain.CreateTransact.class);
 			when(service.createTransaction(any(TransactionDomain.CreateTransact.class), any(ZoneId.class)))
 				.thenAnswer(new TransactResponseAnswer());
@@ -123,6 +132,7 @@ class TransactionControllerTest {
 	}
 
 	static class TransactResponseAnswer implements Answer<TransactionDomain.Response> {
+
 		@Override
 		public TransactionDomain.Response answer(InvocationOnMock invocationOnMock) throws Throwable {
 			TransactionDomain.CreateTransact argument1 = invocationOnMock.getArgument(0, TransactionDomain.CreateTransact.class);
@@ -142,9 +152,9 @@ class TransactionControllerTest {
 
 	@Test
 	void testCheckTransactionAreExits() {
-		when(service.checkTransaction(any(), any())).thenAnswer(new CheckTransactResponseAnswer());
+		when(service.findTransaction(any(), any())).thenAnswer(new CheckTransactResponseAnswer());
 		assertDoesNotThrow(() -> {
-			mockMvc.perform(get("/transact/order-1/check"))
+			mockMvc.perform(get("/transact/order-1/find"))
 				.andExpectAll(
 					status().isOk(),
 					content().contentType(MediaType.APPLICATION_JSON),
@@ -155,9 +165,9 @@ class TransactionControllerTest {
 
 	@Test
 	void testCheckTransactionAreNotExits() {
-		when(service.checkTransaction(any(), any())).thenAnswer(new CheckTransactResponseAnswer());
+		when(service.findTransaction(any(), any())).thenAnswer(new CheckTransactResponseAnswer());
 		assertDoesNotThrow(() -> {
-			mockMvc.perform(get("/transact/order-2/check"))
+			mockMvc.perform(get("/transact/order-2/find"))
 				.andExpectAll(
 					status().isNotFound(),
 					content().contentType(MediaType.APPLICATION_JSON),
@@ -169,6 +179,7 @@ class TransactionControllerTest {
 	}
 
 	static class CheckTransactResponseAnswer implements Answer<TransactionDomain.Response> {
+
 		@Override
 		public TransactionDomain.Response answer(InvocationOnMock invocationOnMock) throws Throwable {
 			String argument1 = invocationOnMock.getArgument(0);

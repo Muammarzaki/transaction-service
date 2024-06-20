@@ -26,7 +26,9 @@ class TransactionEntityTest {
 	void shouldSaveNewTransactionWithExitsCustomerAndItem() {
 		CustomerInfoEntity customerInfo = CustomerInfoEntity.builder()
 			.userId("2434")
-			.username("joko")
+			.firstName("joko")
+			.email("cp@example.com")
+			.phone("62832117654")
 			.build();
 		ItemEntity item1 = ItemEntity.builder().itemId("3242")
 			.itemName("foobar")
@@ -39,13 +41,13 @@ class TransactionEntityTest {
 			.orderId("order-1")
 			.currency("IDR")
 			.transactOn(Instant.ofEpochMilli(1706617931617L))
-			.transactMethod("cash")
+			.transactMethod("cash").transactStatus("pending")
 			.customerInfo(customerInfo)
 			.items(List.of(
 				item1
 			))
+			.message("foobar")
 			.build();
-
 
 		assertDoesNotThrow(() -> {
 			entityManager.persistAndFlush(customerInfo);
@@ -69,7 +71,8 @@ class TransactionEntityTest {
 	void shouldSaveNewTransactionWithExitsCustomerAndItemAndInvoice() {
 		CustomerInfoEntity customerInfo = CustomerInfoEntity.builder()
 			.userId("2434")
-			.username("joko")
+			.firstName("joko").email("cp@example.com")
+			.phone("62832117654")
 			.build();
 		ItemEntity item1 = ItemEntity.builder().itemId("3242")
 			.itemName("foobar")
@@ -91,9 +94,11 @@ class TransactionEntityTest {
 			.items(List.of(
 				item1
 			))
+			.message("foobars")
 			.invoice(invoice)
+			.transactStatus("pending")
 			.build();
-
+		transactionData.getInvoice().setExpired(Instant.ofEpochMilli(1706617111111L));
 
 		assertDoesNotThrow(() -> {
 			entityManager.persistAndFlush(customerInfo);
@@ -119,7 +124,8 @@ class TransactionEntityTest {
 	void shouldSavedNewTransaction() {
 		CustomerInfoEntity customerInfo = CustomerInfoEntity.builder()
 			.userId("2434")
-			.username("joko")
+			.firstName("joko").email("cp@example.com")
+			.phone("62832117654")
 			.build();
 		ItemEntity item1 = ItemEntity.builder().itemId("3242")
 			.price(10000)
@@ -137,6 +143,8 @@ class TransactionEntityTest {
 			.items(List.of(
 				item1
 			))
+			.transactStatus("pending")
+			.message("foobar")
 			.build();
 
 

@@ -23,23 +23,24 @@ public class TransactionController {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping("{order_id}/check")
+	@GetMapping("{order_id}/find")
 	public ResponseDomain checkTransaction(@PathVariable("order_id") String id, TimeZone timeZone) {
-		TransactionDomain.Response response = transactServices.checkTransaction(id, timeZone.toZoneId());
+		TransactionDomain.Response response = transactServices.findTransaction(id, timeZone.toZoneId());
 		return ResponseDomain.builder()
 			.statusCode(HttpStatus.OK.value())
-			.status("order_id exits")
+			.status("transaction exits")
 			.data(response)
 			.build();
 	}
 
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	@PostMapping("{order_id}/cancel")
-	public Object cancelTransaction(@PathVariable("order_id") String id) {
-		transactServices.cancelTransaction(id);
+	public Object cancelTransaction(@PathVariable("order_id") String id, TimeZone timeZone) {
+		TransactionDomain.Response response = transactServices.cancelTransaction(id, timeZone.toZoneId());
 		return ResponseDomain.builder()
+			.data(response)
 			.statusCode(HttpStatus.ACCEPTED.value())
-			.status("the transaction with order id %s has ben deleted".formatted(id))
+			.status("the transaction with order id %s has ben canceled".formatted(id))
 			.build();
 	}
 

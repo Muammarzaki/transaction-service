@@ -10,11 +10,14 @@ public abstract class CustomerAdapter {
 	public static CustomerInfoEntity convertToCustomerInfo(TransactionDomain.CustomerDomain domain) {
 		return CustomerInfoEntity.builder()
 			.userId(domain.userId())
-			.username(domain.username())
+			.firstName(domain.firstName())
+			.lastName(domain.lastName())
+			.email(domain.email())
+			.phone(domain.phone())
 			.build();
 	}
 
 	public static TransactionDomain.CustomerDomain convertFromCustomerInfo(CustomerInfoEntity entity) {
-		return new TransactionDomain.CustomerDomain(entity.getUserId(), entity.getUsername());
+		return new TransactionDomain.CustomerDomain(entity.getUserId(), entity.getFirstName(), entity.getLastName(), entity.getEmail(), entity.getPhone());
 	}
 }

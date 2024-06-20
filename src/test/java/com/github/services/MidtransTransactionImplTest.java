@@ -91,7 +91,8 @@ class MidtransTransactionImplTest {
 			}
 		  ],
 		  "fraud_status": "accept",
-		  "currency": "IDR"
+		  "currency": "IDR",
+		  "expiry_time": "2024-06-21 12:21:59"
 		}""";
 	private final String midtransAlfamartSuccess406StatusCode = """
 		{
@@ -150,7 +151,8 @@ class MidtransTransactionImplTest {
 		  "transaction_status": "pending",
 		  "fraud_status": "accept",
 		  "payment_code": "8127740588870520",
-		  "store": "alfamart"
+		  "store": "alfamart",
+		  "expiry_time": "2024-06-21 12:21:59"
 		}""";
 
 
@@ -158,7 +160,7 @@ class MidtransTransactionImplTest {
 	void setUp() {
 		CustomerInfoEntity customerInfo = CustomerInfoEntity.builder()
 			.userId("2434")
-			.username("joko")
+			.firstName("joko")
 			.build();
 		ItemEntity item1 = ItemEntity.builder().itemId("3242")
 			.itemName("foobar")
@@ -179,6 +181,7 @@ class MidtransTransactionImplTest {
 				item1
 			))
 			.build();
+		transactionData.getInvoice().setExpired(Instant.now());
 	}
 
 	@Test
@@ -299,12 +302,13 @@ class MidtransTransactionImplTest {
 
 	@Test
 	void shouldCancelTheTransactionByOrderId() {
-		String orderId = "order-3";
+		String orderId = "order-4";
+		when(repository.findByOrderId(any())).thenAnswer(new FindTransaction());
 		server.expect(requestTo("https://api.sandbox.midtrans.com/v2/" + orderId + "/cancel"))
 			.andRespond(withSuccess(midtransBankTransferCancelWithSuccessResponse, MediaType.APPLICATION_JSON));
 
 		assertDoesNotThrow(() -> {
-			midtransTransactionService.cancelTransaction(orderId);
+			midtransTransactionService.cancelTransaction(orderId, ZoneId.systemDefault());
 
 			LocalDateTime transactTime = LocalDateTime.of(2015, 2, 26, 14, 39, 33);
 			verify(repository, times(1)).updateTransaction(orderId, "cancel", transactTime.toInstant(ZoneOffset.UTC));
@@ -313,12 +317,15 @@ class MidtransTransactionImplTest {
 
 	@Test
 	void shouldCancelTheTransactionButItFailCauseMerchantDeclineTheRequest() {
-		String orderId = "order-3";
+		String orderId = "order-4";
+
+		when(repository.findByOrderId(any())).thenAnswer(new FindTransaction());
 		server.expect(requestTo("https://api.sandbox.midtrans.com/v2/" + orderId + "/cancel"))
 			.andRespond(withSuccess(midtransBankTranferCancelWithFailResponse, MediaType.APPLICATION_JSON));
 
+		ZoneId zone = ZoneId.systemDefault();
 		ThirdPartyRequestErrorException exceptions = assertThrows(ThirdPartyRequestErrorException.class, () -> {
-			midtransTransactionService.cancelTransaction(orderId);
+			midtransTransactionService.cancelTransaction(orderId, zone);
 		});
 		verify(repository, times(0)).updateTransaction(any(), any(), any());
 		assertThat(exceptions)
@@ -358,7 +365,7 @@ class MidtransTransactionImplTest {
 	void checkTheTransactionWithTransactionFinishOnNotExits() {
 		when(repository.findByOrderId(anyString())).thenAnswer(new FindTransaction());
 
-		TransactionDomain.Response entityResponse = midtransTransactionService.checkTransaction("order-1", ZoneId.systemDefault());
+		TransactionDomain.Response entityResponse = midtransTransactionService.findTransaction("order-1", ZoneId.systemDefault());
 
 		verify(repository, times(1)).findByOrderId("order-1");
 		assertThat(entityResponse)
@@ -370,7 +377,7 @@ class MidtransTransactionImplTest {
 	void checkTheTransactionWithTransactionFinishOnExits() {
 		when(repository.findByOrderId(anyString())).thenAnswer(new FindTransaction());
 
-		TransactionDomain.Response entityResponse = midtransTransactionService.checkTransaction("order-4", ZoneId.systemDefault());
+		TransactionDomain.Response entityResponse = midtransTransactionService.findTransaction("order-4", ZoneId.systemDefault());
 
 		verify(repository, times(1)).findByOrderId("order-4");
 		assertThat(entityResponse)
@@ -383,7 +390,7 @@ class MidtransTransactionImplTest {
 		when(repository.findByOrderId(anyString())).thenAnswer(new FindTransaction());
 		ZoneId zoneId = ZoneId.systemDefault();
 		RuntimeException noSuchElementException = assertThrows(TransactionNotFoundException.class, () ->
-			midtransTransactionService.checkTransaction("order-2", zoneId)
+			midtransTransactionService.findTransaction("order-2", zoneId)
 		);
 		assertThat(noSuchElementException.getMessage()).isEqualTo("transaction with order_id order-2 not exits");
 		verify(repository, times(1)).findByOrderId("order-2");
@@ -402,7 +409,7 @@ class MidtransTransactionImplTest {
 		public Optional<TransactionEntity> answer(InvocationOnMock invocationOnMock) throws Throwable {
 			CustomerInfoEntity customerInfo = CustomerInfoEntity.builder()
 				.userId("2434")
-				.username("joko")
+				.firstName("joko")
 				.build();
 			ItemEntity item1 = ItemEntity.builder().itemId("3242")
 
@@ -436,5 +443,5 @@ class MidtransTransactionImplTest {
 			return Optional.empty();
 		}
 	}
-	
+
 }

@@ -53,7 +53,11 @@ class TransactionDomainTest {
 		Currency currency = Currency.getInstance("IDR");
 		float mount = 60000;
 		String method = "gopay";
-		TransactionDomain.Response domain = TransactionDomain.Response.builder().orderId(paymentID).transactOn(now).transactFinishOn(transactFinishOn).transactStatus(transactStatus).items(new TransactionDomain.ItemsDomain()).customer(new TransactionDomain.CustomerDomain(null, null)).transactMethod(method).grossAmount(mount).currency(currency).build();
+		TransactionDomain.Response domain = TransactionDomain.Response.builder()
+			.orderId(paymentID).transactOn(now)
+			.transactFinishOn(transactFinishOn).transactStatus(transactStatus)
+			.items(new TransactionDomain.ItemsDomain())
+			.customer(new TransactionDomain.CustomerDomain(null, null, null, null, null)).transactMethod(method).grossAmount(mount).currency(currency).build();
 		String jsonFormat = """
 			{
 			    "order_id": "%s",
@@ -135,23 +139,23 @@ class TransactionDomainTest {
 		TransactionDomain.ItemsDomain items = new TransactionDomain.ItemsDomain();
 		items.add(itemDomain1);
 		items.add(itemDomain2);
-		TransactionDomain.CreateTransact createTransact = new TransactionDomain.CreateTransact(2000d, Currency.getInstance("IDR"), "alfamart", items, new TransactionDomain.CustomerDomain("ichikiwir", "joko"));
+		TransactionDomain.CreateTransact createTransact = new TransactionDomain.CreateTransact(2000d, Currency.getInstance("IDR"), "alfamart", items, new TransactionDomain.CustomerDomain("ichikiwir", "joko", null, null, null), "hello");
 		assertThat(createTransact)
-			.extracting("grossAmount", "currency", "transactMethod", "customer.username")
+			.extracting("grossAmount", "currency", "transactMethod", "customer.firstName")
 			.contains(2000.0, Currency.getInstance("IDR"), "alfamart", "joko");
 	}
 
 	@Test
 	void shouldCreateNewCustomerDomain() {
-		TransactionDomain.CustomerDomain customerDomain = new TransactionDomain.CustomerDomain("ichikiwir", "jonathan");
+		TransactionDomain.CustomerDomain customerDomain = new TransactionDomain.CustomerDomain("chichier", "jonathan", "fernandes", null, null);
 		assertThat(customerDomain)
-			.extracting("userId", "username")
-			.containsExactly("ichikiwir", "jonathan");
+			.extracting("userId", "firstName")
+			.containsExactly("chichier", "jonathan");
 
 		CustomerInfoEntity customerInfoFromCustomerDomain = CustomerAdapter.convertToCustomerInfo(customerDomain);
 		assertThat(customerInfoFromCustomerDomain)
-			.extracting("userId", "username")
-			.containsExactly(customerDomain.userId(), customerDomain.username());
+			.extracting("userId", "firstName")
+			.containsExactly(customerDomain.userId(), customerDomain.firstName());
 
 		assertThat(CustomerAdapter.convertFromCustomerInfo(customerInfoFromCustomerDomain))
 			.isEqualTo(customerDomain);

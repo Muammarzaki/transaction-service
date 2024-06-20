@@ -19,7 +19,14 @@ public class CustomerInfoEntity {
 	@Id
 	@Column(name = "user_id")
 	String userId;
-	@Column(name = "username", nullable = false)
-	String username;
+	@Column(name = "first_name", nullable = false)
+	String firstName;
+	@Column(name = "last_name")
+	String lastName;
+	@Column(name = "email", nullable = false)
+	String email;
+	@Column(name = "phone", nullable = false, length = 15)
+	String phone;
+
 
 }

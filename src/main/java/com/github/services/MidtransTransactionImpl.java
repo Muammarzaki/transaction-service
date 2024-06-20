@@ -67,11 +67,11 @@ public class MidtransTransactionImpl implements TransactionService {
 				UUID.randomUUID().toString(),
 				transact.grossAmount()))
 			.items(transact.items())
-			.customerDetails(new MidtransDomain.CustomerDetails(customer.username(), "-"))
+			.customerDetails(new MidtransDomain.CustomerDetails(customer.firstName(), customer.lastName(), customer.email(), customer.phone()))
 			.build();
 
 		Object anyData = switch (paymentType) {
-			case CSTORE -> new MidtransDomain.Cstore(transact.transactMethod(), "--");
+			case CSTORE -> new MidtransDomain.Cstore(transact.transactMethod(), transact.message());
 			case BANK_TRANSFER -> new MidtransDomain.BankTransfer(transact.transactMethod());
 			default -> null;
 		};
@@ -102,8 +102,7 @@ public class MidtransTransactionImpl implements TransactionService {
 				.currency(String.valueOf(x.getCurrency()))
 				.orderId(x.getOrderId())
 				.invoice(switch (midtransApiResponse) {
-					case MidtransDomain.BankTransferResponse bank -> bank.getVaNumbers().stream()
-						.findFirst()
+					case MidtransDomain.BankTransferResponse bank -> bank.getVaNumbers().stream().findFirst()
 						.map(vaNumber -> new BankTransferInvoiceEntity(vaNumber.vaNumber(), vaNumber.bank()))
 						.orElseThrow(() -> new UnReceiveInvoice("UnReceive from midtrans with order id = %s".formatted(midtransApiResponse.getOrderId())));
 					case MidtransDomain.CStoreResponse cstore ->
@@ -115,7 +114,12 @@ public class MidtransTransactionImpl implements TransactionService {
 					default ->
 						throw new IllegalStateException("Unexpected value: " + midtransApiResponse.getPaymentType().getType());
 				})
+				.message(transact.message())
 				.build())
+			.map(x -> {
+				x.getInvoice().setExpired(midtransApiResponse.getExpiryTime().atZone(zoneId).toInstant());
+				return x;
+			})
 			.orElseThrow(() -> new TransactionNotFoundException("midtrans does not have response body or empty")));
 
 
@@ -129,11 +133,14 @@ public class MidtransTransactionImpl implements TransactionService {
 			.items(ItemAdapter.convertFromListOfItemEntityToItemsDomain(entity.getItems()))
 			.transactMethod(entity.getTransactMethod())
 			.anyProperty(Map.of(INVOICE, entity.getInvoice()))
+			.message(transact.message())
 			.build();
 	}
 
-	@Override
-	public void cancelTransaction(String orderId) {
+	public TransactionDomain.Response cancelTransaction(String orderId, ZoneId zone) {
+		TransactionEntity entity = repository.findByOrderId(orderId)
+			.orElseThrow(() -> new TransactionNotFoundException("Transaction with order_id : %s never created or found".formatted(orderId)));
+
 		MidtransDomain.TransactionResponse response = restClient.post()
 			.uri("/v2/{orderId}/cancel", orderId)
 			.exchange((clientRequest, clientResponse) -> {
@@ -147,6 +154,19 @@ public class MidtransTransactionImpl implements TransactionService {
 			});
 
 		repository.updateTransaction(orderId, response.getTransactionStatus(), response.getTransactionTime().toInstant(ZoneOffset.UTC));
+		return TransactionDomain.Response.builder()
+			.orderId(entity.getOrderId())
+			.transactStatus(response.getTransactionStatus())
+			.grossAmount(entity.getGrossAmount())
+			.currency(Currency.getInstance(entity.getCurrency()))
+			.transactOn(LocalDateTime.ofInstant(entity.getTransactOn(), zone))
+			.transactFinishOn(response.getTransactionTime())
+			.customer(CustomerAdapter.convertFromCustomerInfo(entity.getCustomerInfo()))
+			.items(ItemAdapter.convertFromListOfItemEntityToItemsDomain(entity.getItems()))
+			.transactMethod(entity.getTransactMethod())
+			.anyProperty(Map.of(INVOICE, entity.getInvoice()))
+			.message(entity.getMessage())
+			.build();
 	}
 
 	@Override
@@ -162,6 +182,7 @@ public class MidtransTransactionImpl implements TransactionService {
 					.items(ItemAdapter.convertFromListOfItemEntityToItemsDomain(x.getItems()))
 					.customer(CustomerAdapter.convertFromCustomerInfo(x.getCustomerInfo()))
 					.anyProperty(Map.of(INVOICE, x.getInvoice()))
+					.message(x.getMessage())
 					.build();
 				if (x.getTransactFinishOn() != null)
 					response.setTransactFinishOn(LocalDateTime.ofInstant(x.getTransactFinishOn(), zoneId));
@@ -171,21 +192,22 @@ public class MidtransTransactionImpl implements TransactionService {
 	}
 
 	@Override
-	public TransactionDomain.Response checkTransaction(String orderId, ZoneId zoneId) {
+	public TransactionDomain.Response findTransaction(String orderId, ZoneId zone) {
 		return repository.findByOrderId(orderId).map(x -> {
 				TransactionDomain.Response response = TransactionDomain.Response.builder()
 					.transactStatus(x.getTransactStatus())
 					.orderId(x.getOrderId())
-					.transactOn(LocalDateTime.ofInstant(x.getTransactOn(), zoneId))
+					.transactOn(LocalDateTime.ofInstant(x.getTransactOn(), zone))
 					.transactMethod(x.getTransactMethod())
 					.grossAmount(x.getGrossAmount())
 					.currency(Currency.getInstance(x.getCurrency()))
 					.customer(CustomerAdapter.convertFromCustomerInfo(x.getCustomerInfo()))
 					.anyProperty(Map.of(INVOICE, x.getInvoice()))
 					.items(ItemAdapter.convertFromListOfItemEntityToItemsDomain(x.getItems()))
+					.message(x.getMessage())
 					.build();
 				if (x.getTransactFinishOn() != null)
-					response.setTransactFinishOn(LocalDateTime.ofInstant(x.getTransactFinishOn(), zoneId));
+					response.setTransactFinishOn(LocalDateTime.ofInstant(x.getTransactFinishOn(), zone));
 				return response;
 			})
 			.orElseThrow(() -> new TransactionNotFoundException("transaction with order_id %s not exits".formatted(orderId)));

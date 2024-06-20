@@ -27,7 +27,8 @@ class CustomerInfoEntityTest {
 		String username = "joko";
 		String userId = UUID.randomUUID().toString();
 
-		CustomerInfoEntity customerInfo = CustomerInfoEntity.builder().userId(userId).username(username).build();
+		CustomerInfoEntity customerInfo = CustomerInfoEntity.builder().userId(userId)
+			.firstName(username).email("cp@example.com").phone("+62083254231254").build();
 
 		CustomerInfoEntity withNewId = entityManager.persistFlushFind(customerInfo);
 
@@ -39,7 +40,11 @@ class CustomerInfoEntityTest {
 		String username = "joko";
 		String userId = "1111";
 
-		CustomerInfoEntity customerInfo = CustomerInfoEntity.builder().userId(userId).username(username).build();
+		CustomerInfoEntity customerInfo = CustomerInfoEntity.builder()
+			.userId(userId)
+			.firstName(username)
+			.phone("+62083254231254")
+			.build();
 
 		assertThrows(ConstraintViolationException.class, () ->
 			entityManager.persistFlushFind(customerInfo)

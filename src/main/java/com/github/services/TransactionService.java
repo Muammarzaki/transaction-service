@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface TransactionService {
 	@Transactional
-	TransactionDomain.Response createTransaction(TransactionDomain.CreateTransact transact, ZoneId zoneId);
+	TransactionDomain.Response createTransaction(TransactionDomain.CreateTransact transact, ZoneId zone);
 
-	public void cancelTransaction(String transactId);
+	TransactionDomain.Response cancelTransaction(String transactId, ZoneId zone);
 
-	public List<TransactionDomain.Response> getAllTransaction(ZoneId zoneId);
+	List<TransactionDomain.Response> getAllTransaction(ZoneId zone);
 
-	public TransactionDomain.Response checkTransaction(String transactId, ZoneId zoneId);
+	TransactionDomain.Response findTransaction(String transactId, ZoneId zone);
 }

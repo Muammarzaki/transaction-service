@@ -78,6 +78,8 @@ public abstract class MidtransDomain {
 		private LocalDateTime transactionTime;
 		@NotBlank(message = "cannot blank or null")
 		private String fraudStatus;
+		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+		private LocalDateTime expiryTime;
 	}
 
 	@JsonTypeName("cstore")
@@ -140,10 +142,12 @@ public abstract class MidtransDomain {
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public record CustomerDetails(
 		@NotBlank(message = "cannot blank or null")
-		String name,
-		@NotBlank(message = "cannot blank or null")
+		String firsName,
+		String lastName,
 		@Email(message = "email not valid")
-		String email
+		String email,
+		@Pattern(regexp = "^\\+?\\d{10,15}$")
+		String phone
 	) {
 	}
 

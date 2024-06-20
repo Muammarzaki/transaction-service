@@ -2,6 +2,7 @@ package com.github.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.app.JacksonConfigurationTest;
+import com.github.helpers.UndefinedPaymentMethodException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -56,7 +57,8 @@ class MidtransDomainTest {
 			  "transaction_status": "pending",
 			  "fraud_status": "accept",
 			  "payment_code": "8127740588870520",
-			  "store": "alfamart"
+			  "store": "alfamart",
+			  "expiry_time": "2024-06-21 12:21:59"
 			}""";
 		assertDoesNotThrow(() -> {
 			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(cstoreResponse, MidtransDomain.TransactionResponse.class);
@@ -82,7 +84,8 @@ class MidtransDomainTest {
 			  "transaction_status": "pending",
 			  "fraud_status": "accept",
 			  "payment_code": "8127740588870520",
-			  "store": "alfamart"
+			  "store": "alfamart",
+			   "expiry_time": "2024-06-21 12:21:59"
 			}""";
 		assertDoesNotThrow(() -> {
 			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(cstoreResponse, MidtransDomain.TransactionResponse.class);
@@ -110,7 +113,8 @@ class MidtransDomainTest {
 			      "va_number": "812785002530231"
 			    }
 			  ],
-			  "fraud_status": "accept"
+			  "fraud_status": "accept",
+			   "expiry_time": "2024-06-21 12:21:59"
 			}""";
 		assertDoesNotThrow(() -> {
 			MidtransDomain.TransactionResponse transactionResponse = mapper.readValue(bankResponse, MidtransDomain.TransactionResponse.class);
@@ -158,7 +162,8 @@ class MidtransDomainTest {
 			      "method": "POST",
 			      "url": "https://api.sandbox.veritrans.co.id/v2/231c79c5-e39e-4993-86da-cadcaee56c1d/cancel"
 			    }
-			  ]
+			  ],
+			   "expiry_time": "2024-06-21 12:21:59"
 			}""";
 
 		assertDoesNotThrow(() -> {
@@ -220,7 +225,7 @@ class MidtransDomainTest {
 
 	@Test
 	void paymentMethodCannotCreateUnsupportedPaymentType() {
-		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+		UndefinedPaymentMethodException thrown = assertThrows(UndefinedPaymentMethodException.class, () -> {
 			MidtransDomain.PaymentMethod.of("cs");
 		});
 		assertThat(thrown.getMessage())
@@ -236,7 +241,7 @@ class MidtransDomainTest {
 
 	@Test
 	void paymentMethodShouldNotGeneratedBySubType() {
-		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+		UndefinedPaymentMethodException thrown = assertThrows(UndefinedPaymentMethodException.class, () -> {
 			MidtransDomain.PaymentMethod.fromSubType("toko cina");
 		});
 		assertThat(thrown.getMessage())
@@ -255,7 +260,7 @@ class MidtransDomainTest {
 
 	@Test
 	void shouldSerializeCustomerDetailsCorrectly() {
-		MidtransDomain.CustomerDetails customerDetails = new MidtransDomain.CustomerDetails("joko", "example@gmail.com");
+		MidtransDomain.CustomerDetails customerDetails = new MidtransDomain.CustomerDetails("joko", null, "example@gmail.com", "628124423242");
 		assertDoesNotThrow(() -> {
 			assertThat(validator.validate(customerDetails)).isEmpty();
 			String customerDetailsJson = mapper.writeValueAsString(customerDetails);

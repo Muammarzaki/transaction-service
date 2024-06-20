@@ -27,12 +27,14 @@ public class TransactionEntity {
 	private String currency;
 	@Column(name = "transact_on", nullable = false)
 	private Instant transactOn;
-	@Column(name = "transact_finish_on", nullable = true)
+	@Column(name = "transact_finish_on")
 	private Instant transactFinishOn;
 	@Column(name = "transact_method")
 	private String transactMethod;
-	@Column(name = "transact_status")
+	@Column(name = "transact_status", nullable = false)
 	private String transactStatus;
+	@Column(name = "message", nullable = false)
+	private String message;
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(
 		name = "transact_with_item",

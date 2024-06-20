@@ -46,6 +46,7 @@ public abstract class TransactionDomain {
 		private ItemsDomain items;
 		@NotEmpty(message = "cannot empty or null")
 		private CustomerDomain customer;
+		private String message = "";
 
 		@JsonIgnore
 		@Builder.Default
@@ -87,12 +88,13 @@ public abstract class TransactionDomain {
 	}
 
 	public record CustomerDomain(
-		@NotBlank
-		@NotNull String userId,
-		@NotBlank
-		@NotNull String username
-	) {
+		@NotBlank @NotNull String userId,
+		@NotBlank @NotNull String firstName,
+		@NotNull String lastName,
+		@NotEmpty String email,
+		@NotEmpty String phone
 
+	) {
 	}
 
 	public record CreateTransact(
@@ -107,7 +109,9 @@ public abstract class TransactionDomain {
 		ItemsDomain items,
 		@NotNull(message = "cannot empty or null")
 		@Valid
-		CustomerDomain customer
+		CustomerDomain customer,
+		@NotEmpty(message = "cannot empty or null")
+		String message
 	) {
 	}
 }

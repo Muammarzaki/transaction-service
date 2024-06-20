@@ -7,6 +7,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.Instant;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -22,7 +24,7 @@ class InvoiceEntityTest {
 			.store("alfamart")
 			.paymentCode("123456789")
 			.build();
-
+		entity.setExpired(Instant.now());
 		testEntityManager.persistAndFlush(entity);
 		InvoiceEntity findEntity = testEntityManager.find(InvoiceEntity.class, entity.getId());
 		assertThat(findEntity).isInstanceOf(CStoreInvoiceEntity.class)
@@ -36,7 +38,7 @@ class InvoiceEntityTest {
 			.bank("bsi")
 			.vaNumber("123456789")
 			.build();
-
+		entity.setExpired(Instant.now());
 		testEntityManager.persistAndFlush(entity);
 		InvoiceEntity findEntity = testEntityManager.find(InvoiceEntity.class, entity.getId());
 		assertThat(findEntity).isInstanceOf(BankTransferInvoiceEntity.class)
@@ -51,7 +53,7 @@ class InvoiceEntityTest {
 			.name("qris-qrcode")
 			.method("get")
 			.build();
-
+		entity.setExpired(Instant.now());
 		testEntityManager.persistAndFlush(entity);
 		InvoiceEntity findEntity = testEntityManager.find(InvoiceEntity.class, entity.getId());
 		assertThat(findEntity).isInstanceOf(EWalletInvoiceEntity.class)
