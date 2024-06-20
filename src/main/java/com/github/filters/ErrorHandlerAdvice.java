@@ -18,22 +18,18 @@ public class ErrorHandlerAdvice {
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseDomain transactionNotFound(TransactionNotFoundException exception) {
 		return ResponseDomain.builder()
-			.statusCode(404)
-			.message(exception.getMessage())
-			.status("failed to found the transaction")
+			.errors(exception.getMessage())
 			.build();
 	}
 
 	@ExceptionHandler(ConstraintViolationException.class)
-	@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseDomain validationError(ConstraintViolationException exception) {
 		List<ValidationErrorInfo> errorsInfo = exception.getConstraintViolations().stream()
 			.map(violation -> new ValidationErrorInfo(violation.getPropertyPath().toString(), violation.getMessage(), violation.getInvalidValue()))
 			.toList();
 		return ResponseDomain.builder()
-			.message(errorsInfo)
-			.statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
-			.status("validation error")
+			.errors(errorsInfo)
 			.build();
 	}
 
@@ -45,9 +41,7 @@ public class ErrorHandlerAdvice {
 			.map(fieldError -> new ValidationErrorInfo(toSnakeCase(fieldError.getField()), fieldError.getDefaultMessage(), fieldError.getRejectedValue()))
 			.toList();
 		return ResponseDomain.builder()
-			.message(errorsInfo)
-			.statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
-			.status("validation error")
+			.errors(errorsInfo)
 			.build();
 	}
 

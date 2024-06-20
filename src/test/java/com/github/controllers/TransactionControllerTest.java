@@ -75,7 +75,6 @@ class TransactionControllerTest {
 				)
 				.andExpectAll(status().isCreated(),
 					content().contentType(MediaType.APPLICATION_JSON),
-					jsonPath("$.status").value("transaction successfully created"),
 					jsonPath("$.data.customer.last_name").value(""),
 					jsonPath("$.data.order_id").value("order-1"),
 					jsonPath("$.data.transact_on").value("04-04-2021 00:00:00"),
@@ -119,12 +118,12 @@ class TransactionControllerTest {
 					.contentType(MediaType.APPLICATION_JSON)
 				)
 				.andExpectAll(status().is4xxClientError(),
-					jsonPath("$.message[1].property_name").value("items[0].quantity"),
-					jsonPath("$.message[1].message").value("must be positive and not zero"),
-					jsonPath("$.message[1].provide_value").value("-2"),
-					jsonPath("$.message[0].provide_value").value("-0.0"),
-					jsonPath("$.message[0].property_name").value("gross_amount"),
-					jsonPath("$.message[0].message").value("must be positive and not zero")
+					jsonPath("$.errors[1].property_name").value("items[0].quantity"),
+					jsonPath("$.errors[1].message").value("must be positive and not zero"),
+					jsonPath("$.errors[1].provide_value").value("-2"),
+					jsonPath("$.errors[0].provide_value").value("-0.0"),
+					jsonPath("$.errors[0].property_name").value("gross_amount"),
+					jsonPath("$.errors[0].message").value("must be positive and not zero")
 				)
 				.andDo(print());
 
@@ -171,9 +170,7 @@ class TransactionControllerTest {
 				.andExpectAll(
 					status().isNotFound(),
 					content().contentType(MediaType.APPLICATION_JSON),
-					jsonPath("$.message").value("transaction with order_id order-2 not exits"),
-					jsonPath("$.status_code").value(404),
-					jsonPath("$.status").value("failed to found the transaction")
+					jsonPath("$.errors").value("transaction with order_id order-2 not exits")
 				);
 		});
 	}

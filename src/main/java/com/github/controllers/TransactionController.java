@@ -27,8 +27,6 @@ public class TransactionController {
 	public ResponseDomain checkTransaction(@PathVariable("order_id") String id, TimeZone timeZone) {
 		TransactionDomain.Response response = transactServices.findTransaction(id, timeZone.toZoneId());
 		return ResponseDomain.builder()
-			.statusCode(HttpStatus.OK.value())
-			.status("transaction exits")
 			.data(response)
 			.build();
 	}
@@ -39,8 +37,6 @@ public class TransactionController {
 		TransactionDomain.Response response = transactServices.cancelTransaction(id, timeZone.toZoneId());
 		return ResponseDomain.builder()
 			.data(response)
-			.statusCode(HttpStatus.ACCEPTED.value())
-			.status("the transaction with order id %s has ben canceled".formatted(id))
 			.build();
 	}
 
@@ -49,8 +45,6 @@ public class TransactionController {
 	public Object listAllTransaction(TimeZone timeZone) {
 		List<TransactionDomain.Response> allTransaction = transactServices.getAllTransaction(timeZone.toZoneId());
 		return ResponseDomain.builder()
-			.statusCode(HttpStatus.OK.value())
-			.status(String.format("all of transaction from database with size %d", allTransaction.size()))
 			.data(allTransaction)
 			.build();
 	}
@@ -60,9 +54,7 @@ public class TransactionController {
 	public ResponseDomain createTransaction(@Valid @RequestBody TransactionDomain.CreateTransact createTransact, TimeZone timeZone) {
 		TransactionDomain.Response createTransaction = transactServices.createTransaction(createTransact, timeZone.toZoneId());
 		return ResponseDomain.builder()
-			.statusCode(201)
 			.data(createTransaction)
-			.status("transaction successfully created")
 			.build();
 	}
 }

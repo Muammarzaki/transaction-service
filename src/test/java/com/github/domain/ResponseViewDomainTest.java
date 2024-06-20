@@ -3,7 +3,6 @@ package com.github.domain;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.app.JacksonConfigurationTest;
@@ -11,7 +10,6 @@ import com.github.helpers.ResponseView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 
@@ -30,9 +28,9 @@ class ResponseViewDomainTest {
 
 	@Test
 	void objectShouldHaveSomeAttributesWithSnakeCaseFormatWhenSerialize() {
-		String jsonFormat = "{\"status\":\"OK\",\"status_code\":200,\"data\":{},\"message\":{}}";
+		String jsonFormat = "{\"data\":{},\"errors\":{}}";
 
-		ResponseDomain domain = ResponseDomain.builder().status(HttpStatus.OK.name()).statusCode(200).message(new HashMap<>()).data(new HashMap<>()).build();
+		ResponseDomain domain = ResponseDomain.builder().errors(new HashMap<>()).data(new HashMap<>()).build();
 
 		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
@@ -42,10 +40,10 @@ class ResponseViewDomainTest {
 	}
 
 	@Test
-	void JsonStringShouldCanDeserializeToPoJo() throws JsonProcessingException {
-		String jsonFormat = "{\"status\":\"OK\",\"status_code\":200,\"data\":{},\"message\":{}}";
+	void JsonStringShouldCanDeserializeToPoJo() {
+		String jsonFormat = "{\"data\":{},\"errors\":{}}";
 
-		ResponseDomain domain = ResponseDomain.builder().status(HttpStatus.OK.name()).statusCode(200).message(new HashMap<>()).data(new HashMap<>()).build();
+		ResponseDomain domain = ResponseDomain.builder().errors(new HashMap<>()).data(new HashMap<>()).build();
 
 		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
@@ -57,23 +55,19 @@ class ResponseViewDomainTest {
 
 	@Test
 	void JsonStringShouldCanDeserializeByGroupToPoJo() {
-		String jsonFormat = "{\"status\":\"OK\",\"status_code\":200,\"data\":{}}";
+		String jsonFormat = "{\"data\":{}}";
 
 		ResponseDomain domain = ResponseDomain.builder()
-			.status(HttpStatus.OK.name())
-			.statusCode(200)
 			.data(new HashMap<>()).build();
 
 		assertDoesNotThrow(() -> {
 			ResponseDomain domainAfterDeserialize = mapper.readerWithView(ResponseView.Success.class).readValue(jsonFormat, ResponseDomain.class);
 			assertEquals(domain, domainAfterDeserialize);
 		});
-		String jsonFailSample = "{\"status\":\"OK\",\"status_code\":200,\"message\":{}}";
+		String jsonFailSample = "{\"errors\":{}}";
 
 		ResponseDomain domain2 = ResponseDomain.builder()
-			.status(HttpStatus.OK.name())
-			.statusCode(200)
-			.message(new HashMap<>()).build();
+			.errors(new HashMap<>()).build();
 
 		assertDoesNotThrow(() -> {
 			ResponseDomain domainAfterDeserialize = mapper.readerWithView(ResponseView.Fail.class).readValue(jsonFailSample, ResponseDomain.class);
