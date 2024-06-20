@@ -33,8 +33,6 @@ Response
 
 ```json
 {
-  "status_code": 200,
-  "status": "http.ok",
   "data": {
     "order_id": "id_payment",
     "transact_status": "done|pending|fail|cancel",
@@ -46,15 +44,19 @@ Response
     "items": [
       {
         "item_id": "random",
-        "item_name": "megicom",
+        "item_name": "comedic",
         "quantity": 2,
         "price": 20000
       }
     ],
     "customer": {
       "user_id": "random",
-      "username": "joni"
-    }
+      "first_name": "joni",
+      "last_name": "",
+      "email": "cp@example.com",
+      "phone": "62832242445332"
+    },
+    "expired": "date"
   }
 }
 ```
@@ -65,8 +67,6 @@ Response
 
 ```json
 {
-  "status_code": 202,
-  "status": "http.accepted",
   "data": {
     "transact_id": "id",
     "transact_status": "cancel",
@@ -85,8 +85,6 @@ Response
 
 ```json
 {
-  "status_code": 200,
-  "status": "http.ok",
   "data": {
     "order_id": "id_payment",
     "transact_status": "done|pending|fail|cancel",
@@ -98,15 +96,19 @@ Response
     "items": [
       {
         "item_id": "random",
-        "item_name": "megicom",
+        "item_name": "comedic",
         "quantity": 2,
         "price": 20000
       }
     ],
     "customer": {
       "user_id": "random",
-      "username": "joni"
-    }
+      "first_name": "joni",
+      "last_name": "",
+      "email": "cp@example.com",
+      "phone": "62832242445332"
+    },
+    "expired": "date"
   }
 }
 ```
@@ -123,14 +125,17 @@ Request
   "items": [
     {
       "item_id": "random",
-      "item_name": "megicom",
+      "item_name": "comedic",
       "quantity": 2,
       "price": 20000
     }
   ],
   "customer": {
     "user_id": "random",
-    "username": "joni"
+    "first_name": "joni",
+    "last_name": "",
+    "email": "cp@example.com",
+    "phone": "62832242445332"
   }
 }
 
@@ -140,8 +145,6 @@ Response
 
 ```json
 {
-  "status_code": 200,
-  "status": "http.ok",
   "data": {
     "order_id": "id_payment",
     "transact_status": "done|pending|fail|cancel",
@@ -153,15 +156,19 @@ Response
     "items": [
       {
         "item_id": "random",
-        "item_name": "megicom",
+        "item_name": "comedic",
         "quantity": 2,
         "price": 20000
       }
     ],
     "customer": {
       "user_id": "random",
-      "username": "joni"
-    }
+      "first_name": "joni",
+      "last_name": "",
+      "email": "cp@example.com",
+      "phone": "62832242445332"
+    },
+    "expired": "date"
   }
 }
 ```
@@ -401,7 +408,7 @@ Example Response
 }
 ```
 
-#### Integration: Cardless Credit Payment
+#### Integration: Card less Credit Payment
 
 | Support Method | Akulaku |
 |----------------|---------|
@@ -644,7 +651,7 @@ attribute customer_details and items\
   "items": [
     {
       "item_id": "random",
-      "item_name": "megicom",
+      "item_name": "comedic",
       "count": 2,
       "price": 20000
     }

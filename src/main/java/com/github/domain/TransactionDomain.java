@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,27 +27,17 @@ public abstract class TransactionDomain {
 	@AllArgsConstructor
 	@Builder
 	public static class Response {
-		@NotEmpty(message = "cannot empty or null")
 		private String orderId;
 		private String transactStatus;
-		@NotEmpty(message = "cannot empty or null")
 		@JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "0.00")
-		@Positive(message = "must positive value")
 		private double grossAmount;
-		@NotEmpty(message = "cannot empty or null")
 		private Currency currency;
-		@NotEmpty(message = "cannot empty or null")
 		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 		private LocalDateTime transactOn;
-		@NotEmpty(message = "cannot empty or null")
 		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
 		private LocalDateTime transactFinishOn;
-		@NotEmpty(message = "cannot empty or null")
 		private String transactMethod;
-		@NotEmpty(message = "cannot empty or null")
-		@Size(min = 1)
 		private ItemsDomain items;
-		@NotEmpty(message = "cannot empty or null")
 		private CustomerDomain customer;
 		private String message = "";
 
