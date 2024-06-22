@@ -86,7 +86,7 @@ public class MidtransTransactionImpl implements TransactionService {
 				InputStream body = response.getBody();
 				String message = new BufferedReader(new InputStreamReader(body)).lines().collect(Collectors.joining("\n"));
 				JsonNode bodyNode = objectMapper.readTree(message);
-				throw new ThirdPartyRequestErrorException(response.getStatusCode(), bodyNode.has("status_message") ? bodyNode.get("status_message").asText() : "API rate limit exceeded");
+				throw new MidtransRequestErrorException(response.getStatusCode(), bodyNode.has("status_message") ? bodyNode.get("status_message").asText() : "API rate limit exceeded");
 			})
 			.body(MidtransDomain.TransactionResponse.class);
 
@@ -150,7 +150,7 @@ public class MidtransTransactionImpl implements TransactionService {
 				if (statusCode.is2xxSuccessful() && (status.getStatusCode() == 200)) {
 					return objectMapper.readValue(bodyResponse, MidtransDomain.TransactionResponse.class);
 				}
-				throw new ThirdPartyRequestErrorException(HttpStatusCode.valueOf(status.getStatusCode()), status.getStatusMessage());
+				throw new MidtransRequestErrorException(HttpStatusCode.valueOf(status.getStatusCode()), status.getStatusMessage());
 			});
 
 		repository.updateTransaction(orderId, response.getTransactionStatus(), response.getTransactionTime().toInstant(ZoneOffset.UTC));
