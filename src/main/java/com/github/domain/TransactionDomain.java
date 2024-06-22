@@ -42,7 +42,6 @@ public abstract class TransactionDomain {
 		private String message = "";
 
 		@JsonIgnore
-		@Builder.Default
 		private Map<String, Object> anyProperty = new HashMap<>();
 
 		@JsonAnySetter
