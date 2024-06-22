@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: transaction_service
+  datasource:
+    url: jdbc:${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
+midtrans:
+  server-key: ${KEY}
+  url: https://api.sandbox.midtrans.com

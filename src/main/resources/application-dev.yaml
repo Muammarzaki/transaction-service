@@ -1,7 +1,3 @@
-logging:
-  level:
-    root: DEBUG
-
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/dev_database
